@@ -106,6 +106,7 @@ public class Learn extends Mode {
 			}
 			input = JOptionPane.showInputDialog(null, editedMessage);
 			System.out.println(input);
+			
 			if (input == null) {
 				if (i > 0) {
 					i = i - 2;
