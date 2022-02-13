@@ -5,7 +5,7 @@ import javax.swing.JOptionPane;
 
 public class Word {
 	private static int number;
-	private String sentence;
+	private String sentence = "";
 	private String en;
 	private String ru;
 	private String def;

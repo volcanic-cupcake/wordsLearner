@@ -89,43 +89,7 @@ public class Learn extends Mode {
 		return convertMsg(editedMessage.toString());
 	}
 	
-	@Override
-	public void start(ArrayList<Word> words) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
-		Collections.shuffle(words);
-		String input = "";
-		Word word;
-		String message;
-		String messageSet = "Noice! Here are your words:\n\n";
-		for (int i = 0; i < words.size(); i++) {
-			word = words.get(i);
-			if (getPlayAudio()) {
-				words.get(i).play();
-			}
-			
-			message = configureMessage(word);
-			input = JOptionPane.showInputDialog(null, message);
-			if (input == null) {
-				if (i > 0) {
-					i = i - 2;
-				}
-				else {
-					i--;
-				}
-				continue;
-			}
-			else if (input.equals("/exit")) {
-				break;
-			}
-			else {
-				if (getLetBuildSentences()) {
-					word.setSentence(input);
-				}
-			}
-		}
-		for (Word word1 : words) {
-			messageSet = messageSet + configureMessage(word1) + "\n__________________________________________________\n";
-		}
-
+	public void callPages(String messageSet) {
 		String messageLine = "";
 		ArrayList<String> messagePages = new ArrayList<String>();
 		Scanner scanner = new Scanner(messageSet);
@@ -169,6 +133,62 @@ public class Learn extends Mode {
 					break;
 				}
 			}
+		}
+	}
+	@Override
+	public void start(ArrayList<Word> words) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
+		Collections.shuffle(words);
+		String input = "";
+		Word word;
+		String message;
+		String messageSet = "Noice! Here are your words:\n\n";
+		for (int i = 0; i < words.size(); i++) {
+			word = words.get(i);
+			if (getPlayAudio()) {
+				words.get(i).play();
+			}
+			
+			message = configureMessage(word);
+			input = JOptionPane.showInputDialog(null, message);
+			if (input == null) {
+				if (i > 0) {
+					i = i - 2;
+				}
+				else {
+					i--;
+				}
+				continue;
+			}
+			else if (input.equals("/exit")) {
+				break;
+			}
+			else {
+				if (getLetBuildSentences()) {
+					word.setSentence(input);
+				}
+			}
+		}
+		
+		//showing all
+		for (Word word1 : words) {
+			messageSet = messageSet + configureMessage(word1) + "\n__________________________________________________\n";
+		}
+		callPages(messageSet);
+		
+		//showing built sentences
+		messageSet = "";
+		String sentence;
+		for (Word word1 : words) {
+			sentence = word1.getSentence();
+			if (!sentence.strip().equals("")) {
+				message = word1.getEn() + " :\n" + sentence;
+				message = convertMsg(message);
+				messageSet = messageSet + message + "\n__________________________________________________\n"; 
+			}
+		}
+		if (!messageSet.equals("")) {
+			messageSet = "Here are sentences you built:\n\n" + messageSet;
+			callPages(messageSet);
 		}
 	}
 }
