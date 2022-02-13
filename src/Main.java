@@ -157,9 +157,6 @@ public class Main {
 					case -1:
 						System.exit(0);
 						break;
-					/*case "/exit":
-						System.exit(0);
-						break;*/
 					case 0:
 						setUp1 = false;
 						break modeLoop;

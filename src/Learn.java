@@ -142,8 +142,12 @@ public class Learn extends Mode {
 		scanner.close();
 		
 		int pageNum = messagePages.size();
-		if (pageNum < 2) { //smth here
-			System.out.println(messageLine);
+		if (pageNum != 0 && !messageLine.equals("")) {
+			//add last message line when it's not full
+			messagePages.add(messageLine);
+		}
+		pageNum = messagePages.size();
+		if (pageNum < 2) {
 			JOptionPane.showMessageDialog(null, messageLine);
 		}
 		else {

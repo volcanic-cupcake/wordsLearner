@@ -19,7 +19,17 @@ public abstract class Mode {
 	    StringBuilder sb = new StringBuilder(str);
 	    int num = str.length() / 150;
 	    int position = 151;
+	    String strTemp;
+	    
 	    for (int i = 0; i < num; i++) {
+	    	strTemp = sb.toString();
+	    	innerLoop:
+	    	for (int j = position; j > (position - 30); j--) {
+	    		if (strTemp.charAt(j) == ' ') {
+	    			position = j;
+	    			break innerLoop;
+	    		}
+	    	}
 		    sb.insert(position, '\n');
 		    position = position + 150;
 	    }

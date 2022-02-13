@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import javax.sound.sampled.*;
+import javax.swing.JOptionPane;
 
 public class Word {
 	private static int number;
@@ -76,7 +77,8 @@ public class Word {
 				clip.start();
 			}
 			catch (LineUnavailableException e) {
-				System.out.println(e);
+				JOptionPane.showMessageDialog(null, "Please close other instances of this program");
+				System.exit(0);
 			}
 		}
 	}
