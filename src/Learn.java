@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Scanner;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -13,7 +14,6 @@ public class Learn extends Mode {
 	private boolean showDefinition;
 	private boolean playAudio;
 	private boolean letBuildSentences;
-	private boolean letAutoListing;
 	private boolean letShowingAll;
 	
 	public Learn (boolean showEnglish, boolean showRussian, boolean showDefinition, boolean playAudio, boolean letBuildSentences, boolean letAutoListing, boolean letShowingAll) {
@@ -46,9 +46,6 @@ public class Learn extends Mode {
 	public boolean getLetBuildSentences() {
 		return this.letBuildSentences;
 	}
-	public boolean getLetAutoListing() {
-		return this.letAutoListing;
-	}
 	public boolean getLetShowingAll() {
 		return this.letShowingAll;
 	}
@@ -68,51 +65,104 @@ public class Learn extends Mode {
 	public void setLetBuildSentences(boolean letBuildSentences) {
 		this.letBuildSentences = letBuildSentences;
 	}
-	public void setLetAutoListing(boolean letAutoListing) {
-		this.letAutoListing = letAutoListing;
-	}
 	public void setLetShowingAll(boolean letShowingAll) {
 		this.letShowingAll = letShowingAll;
+	}
+	
+	public String configureMessage(Word word) {
+		StringBuilder editedMessage;
+		String message = "";
+		if (getShowEnglish()) {
+			message = message + word.getEn() + " — ";
+		}
+		if (getShowRussian()) {
+			message = message + word.getRu() + " : ";
+		}
+		if (getShowDefinition()) {
+			message = message + "\n\n" + word.getDef() + " — ";
+		}
+		
+		editedMessage = new StringBuilder(message);
+		for (int j = 1; j <= 3; j++) {
+			editedMessage.deleteCharAt(message.length() - j);
+		}
+		return convertMsg(editedMessage.toString());
 	}
 	
 	@Override
 	public void start(ArrayList<Word> words) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		Collections.shuffle(words);
 		String input = "";
-		String message;
 		Word word;
-		StringBuilder editedMessage;
-		
+		String message;
+		String messageSet = "Noice! Here are your words:\n\n";
 		for (int i = 0; i < words.size(); i++) {
-			message = "";
 			word = words.get(i);
 			if (getPlayAudio()) {
 				words.get(i).play();
 			}
 			
-			if (getShowEnglish()) {
-				message = message + word.getEn() + " — ";
-			}
-			if (getShowRussian()) {
-				message = message + word.getRu() + " — ";
-			}
-			if (getShowDefinition()) {
-				message = message + word.getDef() + " — ";
-			}
-			
-			editedMessage = new StringBuilder(message);
-			for (int j = 1; j <= 3; j++) {
-				editedMessage.deleteCharAt(message.length() - j);
-			}
-			input = JOptionPane.showInputDialog(null, editedMessage);
-			System.out.println(input);
-			
+			message = configureMessage(word);
+			input = JOptionPane.showInputDialog(null, message);
 			if (input == null) {
 				if (i > 0) {
 					i = i - 2;
 				}
 				else {
 					i--;
+				}
+				continue;
+			}
+			else if (input.equals("/exit")) {
+				break;
+			}
+			else {
+				if (getLetBuildSentences()) {
+					word.setSentence(input);
+				}
+			}
+		}
+		for (Word word1 : words) {
+			messageSet = messageSet + configureMessage(word1) + "\n__________________________________________________\n";
+		}
+
+		String messageLine = "";
+		ArrayList<String> messagePages = new ArrayList<String>();
+		Scanner scanner = new Scanner(messageSet);
+		int count = 0;
+		while(scanner.hasNextLine()) {
+			count++;
+			messageLine = messageLine + '\n' + scanner.nextLine();
+			if (count == 42) {
+				messagePages.add(messageLine);
+				messageLine = "";
+				count = 0;
+			}
+		}
+		scanner.close();
+		
+		int pageNum = messagePages.size();
+		if (pageNum < 2) { //smth here
+			System.out.println(messageLine);
+			JOptionPane.showMessageDialog(null, messageLine);
+		}
+		else {
+			String pageInput;
+			String pageMsg;
+			for (int i = 0; i < pageNum; i++) {
+				pageMsg = "Page " + Integer.toString(i + 1) + '/' + Integer.toString(pageNum) + "\n\n" + messagePages.get(i);
+				pageInput = JOptionPane.showInputDialog(null, pageMsg);
+				if (pageInput == null) {
+					if (i > 0) {
+						i = i - 2;
+					}
+					else {
+						i--;
+					}
+					continue;
+				}
+				else if (pageInput.equals("/exit")) {
+					break;
 				}
 			}
 		}

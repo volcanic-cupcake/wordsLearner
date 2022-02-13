@@ -4,6 +4,7 @@ import javax.sound.sampled.*;
 
 public class Word {
 	private static int number;
+	private String sentence;
 	private String en;
 	private String ru;
 	private String def;
@@ -20,6 +21,9 @@ public class Word {
 	public static int getNumber() {
 		return number;
 	}
+	public String getSentence() {
+		return this.sentence;
+	}
 	public String getEn() {
 		return this.en;
 	}
@@ -33,6 +37,9 @@ public class Word {
 		return this.audio;
 	}
 	//------------------------------------------
+	public void setSentence(String sentence) {
+		this.sentence = sentence;
+	}
 	public void setEn(String en) {
 		this.en = en;
 	}
@@ -64,8 +71,13 @@ public class Word {
 		if (this.audio != null) {
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(this.audio);
 			Clip clip = AudioSystem.getClip();
-			clip.open(audioStream);
-			clip.start();
+			try {
+				clip.open(audioStream);
+				clip.start();
+			}
+			catch (LineUnavailableException e) {
+				System.out.println(e);
+			}
 		}
 	}
 	public void play(boolean sleepUntilFinished) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
