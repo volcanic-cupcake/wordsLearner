@@ -86,12 +86,18 @@ public class Word {
 		if (this.audio != null) {
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(this.audio);
 			Clip clip = AudioSystem.getClip();
-			clip.open(audioStream);
-			clip.start();
-			if (sleepUntilFinished) {
-				while(clip.getMicrosecondLength() != clip.getMicrosecondPosition())
-				{
+			try {
+				clip.open(audioStream);
+				clip.start();
+				if (sleepUntilFinished) {
+					while(clip.getMicrosecondLength() != clip.getMicrosecondPosition())
+					{
+					}
 				}
+			}
+			catch (LineUnavailableException e) {
+				JOptionPane.showMessageDialog(null, "Please close other instances of this program");
+				System.exit(0);
 			}
 		}
 	}

@@ -18,7 +18,7 @@ public class Learn extends Mode {
 	private boolean letBuildSentences;
 	private boolean letShowingAll;
 	
-	public Learn (boolean showEnglish, boolean showRussian, boolean showDefinition, boolean playAudio, boolean letBuildSentences, boolean letAutoListing, boolean letShowingAll) {
+	public Learn (boolean showEnglish, boolean showRussian, boolean showDefinition, boolean playAudio, boolean letBuildSentences, boolean letShowingAll) {
 		super();
 		number++;
 		// true for show by default
@@ -137,6 +137,10 @@ public class Learn extends Mode {
 			}
 		}
 	}
+	
+	public void showElement(String message) {
+		callPages(convertMsg(message));
+	}
 	@Override
 	public void start(ArrayList<Word> words) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		Collections.shuffle(words);
@@ -152,6 +156,7 @@ public class Learn extends Mode {
 			
 			message = configureMessage(word);
 			input = JOptionPane.showInputDialog(null, message);
+			
 			if (input == null) {
 				if (i > 0) {
 					i = i - 2;
@@ -165,7 +170,27 @@ public class Learn extends Mode {
 				break;
 			}
 			else {
-				if (getLetBuildSentences()) {
+				if (input.equals("en")) {
+					showElement(word.getEn());
+					i--;
+					continue;
+				}
+				else if (input.equals("ru")) {
+					showElement(word.getRu());
+					i--;
+					continue;
+				}
+				else if (input.equals("def")) {
+					showElement(word.getDef());
+					i--;
+					continue;
+				}
+				else if (input.equals("au")) {
+					word.play();
+					i--;
+					continue;
+				}
+				else if (getLetBuildSentences()) {
 					word.setSentence(input);
 				}
 			}
@@ -224,7 +249,7 @@ public class Learn extends Mode {
 			}
 		}
 		//this part is for saving new built words in a .txt
-		if (builtWordsExists) {
+		if (builtWordsExists && !lines.isEmpty()) {
 			String updatedLines = "";
 			for (String line1 : lines) {
 				updatedLines = updatedLines + line1 + "\n";

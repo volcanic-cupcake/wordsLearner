@@ -148,7 +148,8 @@ public class Main {
 				
 				modeLoop:
 				while (setUp1) {
-					String[] options2 = {"go back", "help", "Learn w translation"};
+					String[] options2 = {"go back", "help", "Learn w translation", "Learn w definition",
+							"Learn w both", "Learn quick", "Learn w audio"};
 					answer = JOptionPane.showOptionDialog(null, "Select a mode\n/help for the list of modes",
 			                ":O",
 			                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options2, options[1]);
@@ -164,7 +165,23 @@ public class Main {
 						JOptionPane.showMessageDialog(null, "List of modes: bla-bla-bla");
 						break;
 					case 2:
-						mode = new Learn(true, true, false, true, true, true, true);
+						mode = new Learn(true, true, false, true, true, true);
+						mode.start(chosenWords);
+						break;
+					case 3:
+						mode = new Learn(true, false, true, true, true, true);
+						mode.start(chosenWords);
+						break;
+					case 4:
+						mode = new Learn(true, true, true, true, true, true);
+						mode.start(chosenWords);
+						break;
+					case 5:
+						mode = new Learn(true, false, false, true, true, true);
+						mode.start(chosenWords);
+						break;
+					case 6:
+						mode = new Learn(false, false, false, true, true, true);
 						mode.start(chosenWords);
 						break;
 					}
