@@ -57,11 +57,11 @@ public class Main {
 	                ":D",
 	                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 			switch (answer) {
-			case 1:
-				JOptionPane.showMessageDialog(null, "Commands: alalalalla");
-				break;
 			case -1:
 				System.exit(0);
+				break;
+			case 1:
+				JOptionPane.showMessageDialog(null, "Commands: alalalalla");
 				break;
 			case 0:
 				

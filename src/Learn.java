@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -175,17 +177,64 @@ public class Learn extends Mode {
 		}
 		callPages(messageSet);
 		
-		//showing built sentences
+		//built sentences
+		ArrayList<String> lines = new ArrayList<String>();
+		File sentenceFile = new File("log/builtWords.txt");
+		boolean builtWordsExists = sentenceFile.exists();
+		if (builtWordsExists) {
+			Scanner scanner = new Scanner(sentenceFile);
+			while (scanner.hasNextLine()) {
+				lines.add(scanner.nextLine());
+			}
+			scanner.close();
+		}
 		messageSet = "";
 		String sentence;
+		String line;
+		String pureWord;
+		int lineLength;
+		int linesSize = lines.size();
+		boolean wordDoesntExist;
 		for (Word word1 : words) {
 			sentence = word1.getSentence();
+			//this part is for saving new built words in a .txt
+			if (builtWordsExists && !sentence.strip().equals("")) {
+				wordDoesntExist = true;
+				innerloop:
+				for (int i = 0; i < linesSize; i++) {
+					line = lines.get(i);
+					lineLength = line.length();
+					pureWord = line.substring(0, lineLength - 1);
+					if (pureWord.equals( word1.getEn())) {
+						lines.set(i, line + "\n" + "\t" + sentence);
+						wordDoesntExist = false;
+						break innerloop;
+					}
+				}
+				if (wordDoesntExist) {
+					lines.add(word1.getEn() + ":" + "\n" + "\t" + sentence);
+				}
+			}
+			
+			//this part is for showing the user current built words
 			if (!sentence.strip().equals("")) {
 				message = word1.getEn() + " :\n" + sentence;
 				message = convertMsg(message);
 				messageSet = messageSet + message + "\n__________________________________________________\n"; 
 			}
 		}
+		//this part is for saving new built words in a .txt
+		if (builtWordsExists) {
+			String updatedLines = "";
+			for (String line1 : lines) {
+				updatedLines = updatedLines + line1 + "\n";
+			}
+			updatedLines = updatedLines.substring(0, updatedLines.length() - 1);
+			FileWriter writer = new FileWriter(sentenceFile);
+			writer.write(updatedLines);
+			writer.close();
+		}
+		//this part is for showing the user current built words
 		if (!messageSet.equals("")) {
 			messageSet = "Here are sentences you built:\n\n" + messageSet;
 			callPages(messageSet);
