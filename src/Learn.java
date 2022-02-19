@@ -74,6 +74,11 @@ public class Learn extends Mode {
 	public String configureMessage(Word word) {
 		StringBuilder editedMessage;
 		String message = "";
+		if (!getShowEnglish() && !getShowRussian() && !getShowDefinition()) {
+			//in case it's audio learning mode
+			return ";D";
+		}
+		
 		if (getShowEnglish()) {
 			message = message + word.getEn() + " — ";
 		}
