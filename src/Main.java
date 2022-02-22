@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +9,8 @@ import java.util.Scanner;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JOptionPane;
+
+import org.apache.commons.io.FileUtils;
 
 public class Main {
 	
@@ -227,6 +231,112 @@ public class Main {
 			mode = new Test(0, 0, 0, 1);
 			mode.start(chosenWords);
 			break;
+		}
+	}
+	
+	public static void backUpFiles() throws IOException {
+	    File source = new File("files");
+	    File destination;
+	    int counter = 1;
+	    while (counter != 0) {
+	    	destination = new File("backUp/" + counter);
+	    	if (!destination.exists()) {
+	    		FileUtils.copyDirectory(source, destination);
+	    		counter = 0;
+	    	} else {
+	    		counter++;
+	    	}
+	    }
+	}
+	
+	public static ArrayList<String> readFile(File file) throws FileNotFoundException {
+		ArrayList<String> content = new ArrayList<String>();
+		Scanner scanner = new Scanner(file);
+		while (scanner.hasNextLine()) {
+			content.add(scanner.nextLine());
+		}
+		scanner.close();
+		return content;
+	}
+	public static void writeFile(File file, String content) throws IOException {
+		FileWriter writer = new FileWriter(file);
+		writer.write(content);
+		writer.close();
+	}
+	public static void separateToSingle() throws IOException {
+		backUpFiles();
+		File singleFile = new File("files/words.txt");
+		File englishFile = new File("files/separateTxt/english.txt"); 
+		File russianFile = new File("files/separateTxt/russian.txt"); 
+		File definitionsFile = new File("files/separateTxt/definitions.txt");
+		boolean exist = singleFile.exists() && englishFile.exists() && russianFile.exists() && definitionsFile.exists();
+		
+		if (exist) {
+			ArrayList<String> english = readFile(englishFile);
+			ArrayList<String> russian = readFile(russianFile);
+			ArrayList<String> definitions = readFile(definitionsFile);
+			
+			String addedLines = "";
+			for (int i = 0; i < english.size(); i++) {
+				addedLines += english.get(i) + "\n";
+				try {
+					addedLines += russian.get(i) + "\n";
+				}
+				catch (IndexOutOfBoundsException e) {}
+				
+				try {
+					addedLines += definitions.get(i) + "\n";
+				}
+				catch (IndexOutOfBoundsException e) {}
+			}
+			addedLines = addedLines.substring(0, addedLines.length() - 1);
+			writeFile(singleFile, addedLines);
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Some file is missing");
+		}
+	}
+	public static void singleToSeparate() throws IOException {
+		backUpFiles();
+		File singleFile = new File("files/words.txt");
+		File englishFile = new File("files/separateTxt/english.txt"); 
+		File russianFile = new File("files/separateTxt/russian.txt"); 
+		File definitionsFile = new File("files/separateTxt/definitions.txt");
+		boolean exist = singleFile.exists() && englishFile.exists() && russianFile.exists() && definitionsFile.exists();
+		
+		if (exist) {
+			String english = "";
+			String russian = "";
+			String definitions = "";
+			ArrayList<String> single = readFile(singleFile);
+			int counter = 0;
+			for (String line : single) {
+				switch (counter) {
+				case 0:
+					english += line + "\n";
+					counter++;
+					break;
+				case 1:
+					russian += line + "\n";
+					counter++;
+					break;
+				case 2:
+					definitions += line + "\n";
+					counter = 0;
+					break;
+				}
+			}
+			
+			english = english.substring(0, english.length() - 1);
+			russian = russian.substring(0, russian.length() - 1);
+			definitions = definitions.substring(0, definitions.length() - 1);
+			
+			writeFile(englishFile, english);
+			writeFile(russianFile, russian);
+			writeFile(definitionsFile, definitions);
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Some file is missing");
 		}
 	}
 }
