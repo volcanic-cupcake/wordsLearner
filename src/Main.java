@@ -308,6 +308,7 @@ public class Main {
 		}
 	}
 	public static void singleToSeparate() throws IOException {
+		
 		File singleFile = new File("files/words.txt");
 		File englishFile = new File("files/separateTxt/english.txt"); 
 		File russianFile = new File("files/separateTxt/russian.txt"); 
