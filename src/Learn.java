@@ -20,7 +20,6 @@ public class Learn extends Mode {
 	
 	public Learn (boolean showEnglish, boolean showRussian, boolean showDefinition, boolean playAudio, boolean letBuildSentences, boolean letShowingAll) {
 		super();
-		number++;
 		// true for show by default
 		// false for show by command
 		setShowEnglish(showEnglish);
@@ -96,56 +95,6 @@ public class Learn extends Mode {
 		return convertMsg(editedMessage.toString());
 	}
 	
-	public void callPages(String messageSet) {
-		String messageLine = "";
-		ArrayList<String> messagePages = new ArrayList<String>();
-		Scanner scanner = new Scanner(messageSet);
-		int count = 0;
-		while(scanner.hasNextLine()) {
-			count++;
-			messageLine = messageLine + '\n' + scanner.nextLine();
-			if (count == 42) {
-				messagePages.add(messageLine);
-				messageLine = "";
-				count = 0;
-			}
-		}
-		scanner.close();
-		
-		int pageNum = messagePages.size();
-		if (pageNum != 0 && !messageLine.equals("")) {
-			//add last message line when it's not full
-			messagePages.add(messageLine);
-		}
-		pageNum = messagePages.size();
-		if (pageNum < 2) {
-			JOptionPane.showMessageDialog(null, messageLine);
-		}
-		else {
-			String pageInput;
-			String pageMsg;
-			for (int i = 0; i < pageNum; i++) {
-				pageMsg = "Page " + Integer.toString(i + 1) + '/' + Integer.toString(pageNum) + "\n\n" + messagePages.get(i);
-				pageInput = JOptionPane.showInputDialog(null, pageMsg);
-				if (pageInput == null) {
-					if (i > 0) {
-						i = i - 2;
-					}
-					else {
-						i--;
-					}
-					continue;
-				}
-				else if (pageInput.equals("/exit")) {
-					break;
-				}
-			}
-		}
-	}
-	
-	public void showElement(String message) {
-		callPages(convertMsg(message));
-	}
 	@Override
 	public void start(ArrayList<Word> words) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		Collections.shuffle(words);
@@ -175,22 +124,22 @@ public class Learn extends Mode {
 				break;
 			}
 			else {
-				if (input.equals("en")) {
+				if (input.equals("/en")) {
 					showElement(word.getEn());
 					i--;
 					continue;
 				}
-				else if (input.equals("ru")) {
+				else if (input.equals("r/u")) {
 					showElement(word.getRu());
 					i--;
 					continue;
 				}
-				else if (input.equals("def")) {
+				else if (input.equals("/def")) {
 					showElement(word.getDef());
 					i--;
 					continue;
 				}
-				else if (input.equals("au")) {
+				else if (input.equals("/au")) {
 					word.play();
 					i--;
 					continue;
@@ -268,6 +217,19 @@ public class Learn extends Mode {
 		if (!messageSet.equals("")) {
 			messageSet = "Here are sentences you built:\n\n" + messageSet;
 			callPages(messageSet);
+		}
+		
+		String[] options = {"Done", "Restart"};
+		int option = JOptionPane.showOptionDialog(null, "Done!\nWanna do it again? :D",
+                ":O",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[1]);
+		switch (option) {
+			case -1:
+				System.exit(0);
+				break;
+			case 1:
+				start(words);
+				break;
 		}
 	}
 }

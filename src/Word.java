@@ -13,9 +13,9 @@ public class Word {
 	
 	public Word(String en, String ru, String def, String pronPath) {
 		number++;
-		setEn(nullIfEmpty(en));
-		setRu(nullIfEmpty(ru));
-		setDef(nullIfEmpty(def));
+		setEn(en);
+		setRu(ru);
+		setDef(def);
 		setAudio(pathToFile(pronPath));
 	}
 	
@@ -54,12 +54,12 @@ public class Word {
 		this.audio = audio;
 	}
 	//------------------------------------------
-	public String nullIfEmpty(String string) {
-		if (string.replace(" ", "").equals("")) {
+	/*public String nullIfEmpty(String string) {
+		if (string.strip().equals("")) {
 			string = null;
 		}
 		return string;
-	}
+	}*/
 	
 	public File pathToFile(String path) {
 		File file = new File(path);

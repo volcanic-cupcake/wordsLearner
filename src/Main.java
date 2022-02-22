@@ -46,7 +46,7 @@ public class Main {
 			counter++;
 		}
 		scanner.close();
-		
+		String wordsAvailable = "Words available: " + Integer.toString(Word.getNumber());
 		//__________________________________________________________
 		String input = "";
 		int answer = 228;
@@ -64,10 +64,10 @@ public class Main {
 				JOptionPane.showMessageDialog(null, "Commands: alalalalla");
 				break;
 			case 0:
-				
+
 				rangeLoop:
 				while(setUp1) {
-					input = JOptionPane.showInputDialog(null, "Time to select the range of words we're gonna learn today.\n/help for instructions.\nSelect the FIRST word of a range.");
+					input = JOptionPane.showInputDialog(null, "Time to select the range of words we're gonna learn today.\n/help for instructions.\nSelect the FIRST word of a range.\n\n" + wordsAvailable);
 					if (input == null) {
 						setUp1 = false;
 						break rangeLoop;
@@ -85,7 +85,7 @@ public class Main {
 					default:
 						try {
 							int first = Integer.parseInt(input);
-							input = JOptionPane.showInputDialog(null, "Select the LAST word of a range.\nmax stands for the biggest number you can choose.");
+							input = JOptionPane.showInputDialog(null, "Select the LAST word of a range.\nmax stands for the biggest number you can choose.\n\n" + wordsAvailable);
 							if (input == null) {
 								setUp1 = false;
 								break rangeLoop;
@@ -149,7 +149,7 @@ public class Main {
 				modeLoop:
 				while (setUp1) {
 					String[] options2 = {"go back", "help", "Learn w translation", "Learn w definition",
-							"Learn w both", "Learn quick", "Learn w audio"};
+							"Learn w both", "Learn quick", "Learn w audio", "Test w translation"};
 					answer = JOptionPane.showOptionDialog(null, "Select a mode\n/help for the list of modes",
 			                ":O",
 			                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options2, options[1]);
@@ -182,6 +182,10 @@ public class Main {
 						break;
 					case 6:
 						mode = new Learn(false, false, false, true, true, true);
+						mode.start(chosenWords);
+						break;
+					case 7:
+						mode = new Test(0, 1, 0, 2, 2, 1);
 						mode.start(chosenWords);
 						break;
 					}
