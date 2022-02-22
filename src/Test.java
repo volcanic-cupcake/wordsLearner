@@ -16,7 +16,7 @@ public class Test extends Mode{
 	private int playAudio;
 	private int letShowingAll;
 	
-	Test (int showEnglish, int showRussian, int showDefinition, int playAudio, int letBuildSentences, int letShowingAll) {
+	Test (int showEnglish, int showRussian, int showDefinition, int playAudio) {
 		super();
 		// 2 for show after correct answer
 		// 1 for show by default

@@ -51,6 +51,7 @@ public class Main {
 		String input = "";
 		int answer = 228;
 		while(true) {
+			chosenWords.clear(); //test
 			boolean setUp1 = true;
 			String[] options = {"start", "help"};
 			answer = JOptionPane.showOptionDialog(null, "Hello!\nClick \"help\" for the commands",
@@ -149,10 +150,10 @@ public class Main {
 				modeLoop:
 				while (setUp1) {
 					String[] options2 = {"go back", "help", "Learn w translation", "Learn w definition",
-							"Learn w both", "Learn quick", "Learn w audio", "Test w translation"};
+							"Learn w both", "Learn quick", "Learn w audio", "Test modes"};
 					answer = JOptionPane.showOptionDialog(null, "Select a mode\n/help for the list of modes",
 			                ":O",
-			                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options2, options[1]);
+			                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options2, options2[7]);
 					Mode mode;
 					switch (answer) {
 					case -1:
@@ -185,14 +186,47 @@ public class Main {
 						mode.start(chosenWords);
 						break;
 					case 7:
-						mode = new Test(0, 1, 0, 2, 2, 1);
-						mode.start(chosenWords);
+						testModesGUI(chosenWords);
 						break;
 					}
 				}
 				break;
 			
 			}
+		}
+	}
+	public static void testModesGUI(ArrayList<Word> chosenWords) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
+		int answer = 0;
+		String[] options = {"learn modes", "help", "Test w tranlation", "Test w definition", "Test w both", "Test spelling"};
+		answer = JOptionPane.showOptionDialog(null, "Select a mode\n/help for the list of modes",
+                ":D",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+		Mode mode;
+		switch (answer) {
+		case -1:
+			System.exit(0);
+			break;
+		case 0:
+			break;
+		case 1:
+			JOptionPane.showMessageDialog(null, "List of modes: bla-bla-bla");
+			break;
+		case 2:
+			mode = new Test(0, 1, 0, 2);
+			mode.start(chosenWords);
+			break;
+		case 3:
+			mode = new Test(0, 0, 1, 2);
+			mode.start(chosenWords);
+			break;
+		case 4:
+			mode = new Test(0, 1, 1, 2);
+			mode.start(chosenWords);
+			break;
+		case 5:
+			mode = new Test(0, 0, 0, 1);
+			mode.start(chosenWords);
+			break;
 		}
 	}
 }
