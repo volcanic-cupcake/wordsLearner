@@ -11,3 +11,6 @@ gold:	old
 windows:	wino
 gold:	d
 gold:	windows
+pig:	fhsadoihgoisafg
+pig:	djopfjfj
+meta:	dlkhgliahgli

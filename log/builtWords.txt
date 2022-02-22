@@ -2,10 +2,20 @@ gold:
 	i like gold he he
 	um gold
 pig:
+	/skip
+	sdf
 	i love pigs
 	test228
 meta:
 	meta
+	meta
+	meta
 	nice company
 google:
+	google is a founder of youtube
 	yo nice browser
+windows:
+	window is good
+	i like windows
+ukraine:
+	ukraine is my home!!!
