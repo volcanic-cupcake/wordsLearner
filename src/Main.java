@@ -87,6 +87,18 @@ public class Main {
 					case "/back":
 						setUp1 = false;
 						break rangeLoop;
+					case "/single to separate":
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						singleToSeparate();
+						JOptionPane.showMessageDialog(null, "Done :)");
+						break;
+					case "/separate to single":
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						separateToSingle();
+						JOptionPane.showMessageDialog(null, "Done :)");
+						break;
 					default:
 						try {
 							int first = Integer.parseInt(input);
@@ -239,7 +251,7 @@ public class Main {
 	    File destination;
 	    int counter = 1;
 	    while (counter != 0) {
-	    	destination = new File("backUp/" + counter);
+	    	destination = new File("backUp/" + counter + "/files");
 	    	if (!destination.exists()) {
 	    		FileUtils.copyDirectory(source, destination);
 	    		counter = 0;
@@ -264,7 +276,6 @@ public class Main {
 		writer.close();
 	}
 	public static void separateToSingle() throws IOException {
-		backUpFiles();
 		File singleFile = new File("files/words.txt");
 		File englishFile = new File("files/separateTxt/english.txt"); 
 		File russianFile = new File("files/separateTxt/russian.txt"); 
@@ -297,7 +308,6 @@ public class Main {
 		}
 	}
 	public static void singleToSeparate() throws IOException {
-		backUpFiles();
 		File singleFile = new File("files/words.txt");
 		File englishFile = new File("files/separateTxt/english.txt"); 
 		File russianFile = new File("files/separateTxt/russian.txt"); 
