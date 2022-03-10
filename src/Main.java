@@ -39,7 +39,7 @@ public class Main {
 				defWord = line;
 				counter = 0;
 				
-				pathWord = "files/audio/(" + index + ").wav";
+				pathWord = "files/audio/" + index + ".wav";
 				index++;
 				word = new Word(engWord, rusWord, defWord, pathWord);
 				words.add(word);
@@ -98,6 +98,33 @@ public class Main {
 						JOptionPane.showMessageDialog(null, "back up has been completed");
 						separateToSingle();
 						JOptionPane.showMessageDialog(null, "Done :)");
+						break;
+					case "/storage to find":
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						storageToFind();
+						JOptionPane.showMessageDialog(null, "Done :)");
+						break;
+					case "/rename audios":
+						String input1337 = JOptionPane.showInputDialog(null, "Enter first index");
+						int input1338 = Integer.parseInt(input1337);
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						renameAudios(input1338);
+						JOptionPane.showMessageDialog(null, "Done :)");
+						
+						break;
+					case "/give list":
+						String output = "";
+						String temp;
+						Scanner deezScanner = new Scanner(new File("files/storage/findAudio.txt"));
+						while(deezScanner.hasNextLine()) {
+							temp = deezScanner.nextLine();
+							output = output + "\"" + temp.strip() + "\" ";
+						}
+						output = output.substring(0, output.length() - 1);
+						System.out.println(output);
+						System.exit(0);
 						break;
 					default:
 						try {
@@ -348,6 +375,78 @@ public class Main {
 		}
 		else {
 			JOptionPane.showMessageDialog(null, "Some file is missing");
+		}
+	}
+	
+	public static void storageToFind() throws IOException {
+		
+		File singleFile = new File("files/storage/storage.txt");
+		File englishFile = new File("files/storage/findAudio.txt"); 
+		boolean exist = singleFile.exists() && englishFile.exists();
+		
+		if (exist) {
+			String english = "";
+			ArrayList<String> single = readFile(singleFile);
+			int counter = 0;
+			for (String line : single) {
+				switch (counter) {
+				case 0:
+					english += line + "\n";
+					counter++;
+					break;
+				case 1:
+					counter++;
+					break;
+				case 2:
+					counter = 0;
+					break;
+				}
+			}
+			
+			english = english.substring(0, english.length() - 1);
+			
+			writeFile(englishFile, english);
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Some file is missing");
+		}
+	}
+	public static void renameAudios(int firstIndex) throws IOException {
+		String path = "files/storage/audio";
+		File audiodir = new File(path);
+		String[] fnames = audiodir.list();
+		ArrayList<String> words = new ArrayList<String>();
+		ArrayList<Integer> foundIndexes = new ArrayList<Integer>();
+		
+		Scanner scanner = new Scanner(new File("files/storage/findAudio.txt"));
+		while(scanner.hasNextLine()) {
+			words.add(scanner.nextLine().strip());
+		}
+		scanner.close();
+		String word;
+		String wordOfAudio;
+		for (int i = 0; i < words.size(); i++) {
+			for (String fname : fnames) {
+				wordOfAudio = fname.substring(0, fname.length() - 11).strip();
+				word = words.get(i);
+				if (word.equals(wordOfAudio)) {
+					foundIndexes.add(i);
+					File wordFile = new File(path + "/" + fname);
+					String newPath = path + "/" + (firstIndex + i) + ".mp3";
+					wordFile.renameTo(new File(newPath));
+				}
+			}
+		}
+		for (int i : foundIndexes) {
+			words.remove(i);
+		}
+		if (!foundIndexes.isEmpty()) {
+			String text = "";
+			for (String line : words) {
+				text += line + "\n";
+			}
+			text = text.substring(0, text.length() - 1);
+			writeFile(new File("files/storage/findAudio.txt"), text);
 		}
 	}
 }
