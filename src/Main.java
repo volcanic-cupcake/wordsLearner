@@ -82,6 +82,7 @@ public class Main {
 						String helpCommands = "/single to reparate" + "\n";
 						helpCommands += "/separate to single" + "\n\n\n";
 						helpCommands += "/storage to find" + "\n";
+						helpCommands += "/give list" + "\n";
 						helpCommands += "/rename audios" + "\n";
 						helpCommands += "/shuffle ready to go" + "\n";
 						JOptionPane.showMessageDialog(null, helpCommands);
@@ -581,8 +582,8 @@ public class Main {
 			
 			File oldName = new File(word.getAudio());
 			if (oldName.exists()) {
-				System.out.println(i + " New name: " + "files/storage/shuffledAudio/" + (i + 1) + ".mp3"); //shit
-				File newName = new File("files/storage/shuffledAudio/" + (i + 1) + ".mp3");
+				System.out.println(i + " New name: " + "files/storage/shuffledAudio/" + (i + inc) + ".mp3"); //shit
+				File newName = new File("files/storage/shuffledAudio/" + (i + inc) + ".mp3");
 				oldName.renameTo(newName);
 			}
 		}
