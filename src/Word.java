@@ -1,7 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import javax.sound.sampled.*;
-import javax.swing.JOptionPane;
+
 
 public class Word {
 	private static int number;
@@ -9,16 +9,24 @@ public class Word {
 	private String en;
 	private String ru;
 	private String def;
-	private File audio;
+	//private File audio;
+	private String audio;
 	
 	public Word(String en, String ru, String def, String pronPath) {
 		number++;
 		setEn(en);
 		setRu(ru);
 		setDef(def);
-		setAudio(pathToFile(pronPath));
+		//setAudio(pathToFile(pronPath));
+		setAudio(pronPath);
 	}
 	
+	public Word(String en, String ru, String def, String pronPath, boolean invisible) {
+		setEn(en);
+		setRu(ru);
+		setDef(def);
+		setAudio(pronPath);
+	}
 	public static int getNumber() {
 		return number;
 	}
@@ -34,7 +42,10 @@ public class Word {
 	public String getDef() {
 		return this.def;
 	}
-	public File getAudio() {
+	/*public File getAudio() {
+		return this.audio;
+	}*/
+	public String getAudio() {
 		return this.audio;
 	}
 	//------------------------------------------
@@ -50,7 +61,10 @@ public class Word {
 	public void setDef(String def) {
 		this.def = def;
 	}
-	public void setAudio(File audio) {
+	/*public void setAudio(File audio) {
+		this.audio = audio;
+	}*/
+	public void setAudio(String audio) {
 		this.audio = audio;
 	}
 	//------------------------------------------
@@ -70,7 +84,7 @@ public class Word {
 	}
 	public void play() throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		if (this.audio != null) {
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(this.audio);
+			/*AudioInputStream audioStream = AudioSystem.getAudioInputStream(this.audio);
 			Clip clip = AudioSystem.getClip();
 			try {
 				clip.open(audioStream);
@@ -79,10 +93,16 @@ public class Word {
 			catch (LineUnavailableException e) {
 				JOptionPane.showMessageDialog(null, "Please close other instances of this program");
 				System.exit(0);
-			}
+			}*/
+			new Thread(() -> {
+				
+				Mp3Player mp3 = new Mp3Player(this.audio);
+				mp3.play();
+				
+			}).start();
 		}
 	}
-	public void play(boolean sleepUntilFinished) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
+	/*public void play(boolean sleepUntilFinished) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		if (this.audio != null) {
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(this.audio);
 			Clip clip = AudioSystem.getClip();
@@ -100,5 +120,5 @@ public class Word {
 				System.exit(0);
 			}
 		}
-	}
+	}*/
 }

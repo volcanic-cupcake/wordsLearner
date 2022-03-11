@@ -19,3 +19,7 @@ windows:
 	i like windows
 ukraine:
 	ukraine is my home!!!
+tankard:
+	my dad ordered me a beer tankard bc I turned 18
+detain:
+	police detained me bc I was suspicious

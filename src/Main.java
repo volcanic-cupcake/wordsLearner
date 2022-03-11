@@ -39,7 +39,7 @@ public class Main {
 				defWord = line;
 				counter = 0;
 				
-				pathWord = "files/audio/" + index + ".wav";
+				pathWord = "files/audio/" + index + ".mp3";
 				index++;
 				word = new Word(engWord, rusWord, defWord, pathWord);
 				words.add(word);
@@ -112,7 +112,12 @@ public class Main {
 						JOptionPane.showMessageDialog(null, "back up has been completed");
 						renameAudios(input1338);
 						JOptionPane.showMessageDialog(null, "Done :)");
-						
+						break;
+					case "/shuffle ready to go":
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						shuffleReadyToGo();
+						JOptionPane.showMessageDialog(null, "Done :)");
 						break;
 					case "/give list":
 						String output = "";
@@ -302,6 +307,11 @@ public class Main {
 		writer.write(content);
 		writer.close();
 	}
+	public static void writeFile(File file, String content, boolean aye) throws IOException {
+		FileWriter writer = new FileWriter(file, true);
+		writer.write(content);
+		writer.close();
+	}
 	public static void separateToSingle() throws IOException {
 		File singleFile = new File("files/words.txt");
 		File englishFile = new File("files/separateTxt/english.txt"); 
@@ -424,19 +434,32 @@ public class Main {
 		}
 		scanner.close();
 		String word;
-		String wordOfAudio;
+		String wordOfAudio = "";
+		String wordOfAudio2 = "";
+		int counter = 0;
 		for (int i = 0; i < words.size(); i++) {
 			for (String fname : fnames) {
-				wordOfAudio = fname.substring(0, fname.length() - 11).strip();
+				try {
+					wordOfAudio = fname.substring(0, fname.length() - 11).strip();
+				}
+				catch (StringIndexOutOfBoundsException e) {}
+				
+				try {
+					wordOfAudio2 = fname.substring(0, fname.length() - 4).strip();
+				}
+				catch (StringIndexOutOfBoundsException e) {}
+				
 				word = words.get(i);
-				if (word.equals(wordOfAudio)) {
+				if (word.equals(wordOfAudio) || word.equals(wordOfAudio2)) {
 					foundIndexes.add(i);
 					File wordFile = new File(path + "/" + fname);
-					String newPath = path + "/" + (firstIndex + i) + ".mp3";
+					String newPath = path + "/" + (firstIndex + counter) + ".mp3";
+					counter++;
 					wordFile.renameTo(new File(newPath));
 				}
 			}
 		}
+		Collections.reverse(foundIndexes);
 		for (int i : foundIndexes) {
 			words.remove(i);
 		}
@@ -445,8 +468,123 @@ public class Main {
 			for (String line : words) {
 				text += line + "\n";
 			}
-			text = text.substring(0, text.length() - 1);
+			try {
+				text = text.substring(0, text.length() - 1);
+			}
+			catch (StringIndexOutOfBoundsException e) {}
 			writeFile(new File("files/storage/findAudio.txt"), text);
+			
+			String readyToGo = "";
+			String storage = "";
+			ArrayList<String> storageLines = readFile(new File ("files/storage/storage.txt"));
+			ArrayList<String> newStorageLines = readFile(new File ("files/storage/storage.txt"));
+			ArrayList<Integer> changesStorage = new ArrayList<Integer>();
+			int eng;
+			int rus;
+			int def;
+			Collections.reverse(foundIndexes);
+			System.out.println(foundIndexes); //shit
+			for (int i : foundIndexes) {
+				eng = (i + 1) * 3 - 2;
+				rus = (i + 1) * 3 - 1;
+				def = (i + 1) * 3;
+				
+				eng--;
+				rus--;
+				def--;
+				
+				System.out.println(i); //shit
+				System.out.println(eng); //shit
+				changesStorage.add(eng);
+				changesStorage.add(rus);
+				changesStorage.add(def);
+				
+				readyToGo += storageLines.get(eng) + "\n";
+				readyToGo += storageLines.get(rus) + "\n";
+				readyToGo += storageLines.get(def) + "\n";
+			}
+			try {
+				readyToGo = "\n" + readyToGo.substring(0, readyToGo.length() - 1);
+			}
+			catch (StringIndexOutOfBoundsException e) {}
+			Collections.reverse(changesStorage);
+			for (int i : changesStorage) {
+				newStorageLines.remove(i);
+			}
+			for (String newStorageLine : newStorageLines) {
+				storage += newStorageLine + "\n";
+			}
+			try {
+				storage = storage.substring(0, storage.length() - 1);
+			}
+			catch (StringIndexOutOfBoundsException e) {}
+			writeFile(new File("files/storage/readyToGo.txt"), readyToGo, true);
+			writeFile(new File("files/storage/storage.txt"), storage);
 		}
+	}
+	
+	public static void shuffleReadyToGo() throws IOException {
+		ArrayList<String> lines = readFile(new File("files/storage/readyToGo.txt"));
+		ArrayList<Word> words = new ArrayList<Word>();
+		String engWord = "";
+		String rusWord = "";
+		String defWord = "";
+		int counter = 0;
+		
+		//File audiodir = new File("files/storage/audio");
+		//String[] audioNames = audiodir.list();
+		int inc = 0;
+		boolean stop = true;
+		while (stop) {
+			inc++;
+			File file = new File("files/storage/audio/" + inc + ".mp3");
+			if (file.exists()) {
+				stop = false;
+			}
+		}
+		
+		String line = "";
+		int wordNum = 0;
+		for (int i = 0; i < lines.size(); i++) {
+			line = lines.get(i);
+			switch (counter) {
+			case 0:
+				engWord = line;
+				counter++;
+				break;
+			case 1:
+				rusWord = line;
+				counter++;
+				break;
+			case 2:
+				defWord = line;
+				words.add(new Word(engWord, rusWord, defWord, "files/storage/audio/" + (wordNum + inc) + ".mp3", false));
+				wordNum++;
+				counter = 0;
+				break;
+			}
+		}
+		Collections.shuffle(words);
+		String update = "";
+		for (int i = 0; i < words.size(); i++) {
+			Word word = words.get(i);
+			update += word.getEn() + "\n";
+			update += word.getRu() + "\n";
+			update += word.getDef() + "\n";
+			
+			System.out.println(i + " Old name: " + word.getAudio()); //shit
+			
+			File oldName = new File(word.getAudio());
+			if (oldName.exists()) {
+				System.out.println(i + " New name: " + "files/storage/shuffledAudio/" + (i + 1) + ".mp3"); //shit
+				File newName = new File("files/storage/shuffledAudio/" + (i + 1) + ".mp3");
+				oldName.renameTo(newName);
+			}
+		}
+		try {
+			update = update.substring(0, update.length() - 1);
+		}
+		catch (StringIndexOutOfBoundsException e) {}
+		writeFile(new File("files/storage/readyToGo.txt"), update);
 	}
 }
