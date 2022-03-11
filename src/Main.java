@@ -79,7 +79,12 @@ public class Main {
 					}
 					switch(input.toLowerCase()) {
 					case "/help":
-						JOptionPane.showMessageDialog(null, "range settings: bla-bla-bla");
+						String helpCommands = "/single to reparate" + "\n";
+						helpCommands += "/separate to single" + "\n\n\n";
+						helpCommands += "/storage to find" + "\n";
+						helpCommands += "/rename audios" + "\n";
+						helpCommands += "/shuffle ready to go" + "\n";
+						JOptionPane.showMessageDialog(null, helpCommands);
 						break;
 					case "/exit":
 						System.exit(0);
