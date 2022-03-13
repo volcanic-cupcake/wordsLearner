@@ -6,7 +6,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/home/volcanocupcake/ecworkspace/wordsLearner/src/commons-io-2.11.0/commons-io-2.11.0.jar"/>
 	<classpathentry kind="lib" path="/home/volcanocupcake/ecworkspace/wordsLearner/src/jlayer-1.0.1.jar"/>
+	<classpathentry kind="lib" path="/home/volcanocupcake/ecworkspace/wordsLearner/src/commons-io-2.11.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
