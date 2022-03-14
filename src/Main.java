@@ -169,6 +169,13 @@ public class Main {
 						System.out.println(output);
 						System.exit(0);
 						break;
+					case "/time to learn":
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						timeToLearn(labWords, brainWords, storageWords);
+						JOptionPane.showMessageDialog(null, "Done :)");
+						System.exit(0);
+						break;
 					default:
 						try {
 							int first = Integer.parseInt(input);
