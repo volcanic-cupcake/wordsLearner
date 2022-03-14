@@ -48,42 +48,16 @@ public class Main {
 		BRAIN.put("separateRussian", BRAIN_PATH + "separateTxt/russian.txt");
 		BRAIN.put("separateDefinitions", BRAIN_PATH + "separateTxt/definitions.txt");
 		
-		File labFile = new File(LAB.get("words"));
-		Scanner scanner = new Scanner(labFile);
-		int counter = 1;
-		int index = 1;
-		String line;
-		ArrayList<Word> words = new ArrayList<Word>();
+		ArrayList<Word> labWords = pullWords(new File(LAB.get("words")), LAB.get("audioDir"));
+		ArrayList<Word> brainWords = pullWords(new File(BRAIN.get("words")), BRAIN.get("audioDir"));
+		ArrayList<Word> storageWords = pullWords(new File(STORAGE.get("readyToGo")), STORAGE.get("audioDir"));
+		
 		ArrayList<Word> chosenWords = new ArrayList<Word>();
-		String engWord = "";
-		String rusWord = "";
-		String defWord = "";
-		String pathWord;
-		Word word;
-		while(scanner.hasNextLine()) {
-			line = scanner.nextLine();
-			if (counter == 1) {
-				engWord = line;
-			}
-			else if (counter == 2) {
-				rusWord = line;
-			}
-			else if (counter == 3) {
-				defWord = line;
-				counter = 0;
-				
-				pathWord = LAB.get("audioDir") + index + AUDIO_EXTENSION;
-				index++;
-				word = new Word(engWord, rusWord, defWord, pathWord);
-				words.add(word);
-			}
-			else {
-				System.out.println("something went wrong");
-			}
-			counter++;
-		}
-		scanner.close();
-		String wordsAvailable = "Lab words available: " + Integer.toString(Word.getNumber());
+		
+		String wordsAvailable = "Words in brain: " + brainWords.size();
+		wordsAvailable += "\n" + "Ready to go words: " + storageWords.size();
+		wordsAvailable += "\n" + "Words in Lab: " + labWords.size();
+		wordsAvailable += "\n\n" + "Total: " + Word.getNumber();
 		//__________________________________________________________
 		String input = "";
 		int answer = 228;
@@ -213,12 +187,12 @@ public class Main {
 									JOptionPane.showMessageDialog(null, "First index can't be more than last bro!");
 								}
 								else {
-									Collections.reverse(words);
+									Collections.reverse(labWords);
 									try {
 										for (int i = first - 1; i < last; i++) {
-											chosenWords.add(words.get(i));
+											chosenWords.add(labWords.get(i));
 										}
-										Collections.reverse(words);									
+										Collections.reverse(labWords);									
 										break rangeLoop;
 									}
 									catch (IndexOutOfBoundsException e) {
@@ -228,7 +202,7 @@ public class Main {
 							}
 							catch (NumberFormatException e) {
 								if (input.toLowerCase().strip().equals("max")) {
-									last = words.size();
+									last = labWords.size();
 									if (first < 1 || last < 1) {
 										JOptionPane.showMessageDialog(null, "Some of your indexes is less than 1. You can't do that.");
 									}
@@ -236,12 +210,12 @@ public class Main {
 										JOptionPane.showMessageDialog(null, "First index can't be more than last bro!");
 									}
 									else {
-										Collections.reverse(words);
+										Collections.reverse(labWords);
 										try {
 											for (int i = first - 1; i < last; i++) {
-												chosenWords.add(words.get(i));
+												chosenWords.add(labWords.get(i));
 											}
-											Collections.reverse(words);									
+											Collections.reverse(labWords);									
 											break rangeLoop;
 										}
 										catch (IndexOutOfBoundsException e2) {
@@ -306,6 +280,42 @@ public class Main {
 			
 			}
 		}
+	}
+	public static ArrayList<Word> pullWords(File wordsFile, String audioDir) throws FileNotFoundException {
+		Scanner scanner = new Scanner(wordsFile);
+		int counter = 1;
+		int index = 1;
+		String line;
+		ArrayList<Word> words = new ArrayList<Word>();
+		String engWord = "";
+		String rusWord = "";
+		String defWord = "";
+		String pathWord;
+		Word word;
+		while(scanner.hasNextLine()) {
+			line = scanner.nextLine();
+			if (counter == 1) {
+				engWord = line;
+			}
+			else if (counter == 2) {
+				rusWord = line;
+			}
+			else if (counter == 3) {
+				defWord = line;
+				counter = 0;
+				
+				pathWord = audioDir + index + AUDIO_EXTENSION;
+				index++;
+				word = new Word(engWord, rusWord, defWord, pathWord);
+				words.add(word);
+			}
+			else {
+				System.out.println("something went wrong");
+			}
+			counter++;
+		}
+		scanner.close();
+		return words;
 	}
 	public static void testModesGUI(ArrayList<Word> chosenWords) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		int answer = 0;
@@ -643,5 +653,80 @@ public class Main {
 		}
 		catch (StringIndexOutOfBoundsException e) {}
 		writeFile(new File(STORAGE.get("readyToGo")), update);
+	}
+	public static void timeToLearn(ArrayList<Word> labWords, ArrayList<Word> brainWords, ArrayList<Word> storageWords) throws IOException {
+		int num = Integer.parseInt(JOptionPane.showInputDialog(null, "How many words are we learning today?"));
+		int storageNum = storageWords.size();
+		if (num <= storageNum) {
+			int brainNum;
+			int newIndex;
+			File oldAudioPath;
+			File newAudioPath;
+			for (Word labWord : labWords) {
+				brainNum = brainWords.size();
+				newIndex = brainNum + 1;
+				
+				brainWords.add(labWord);
+				oldAudioPath = new File(labWord.getAudio());
+				newAudioPath = new File(BRAIN.get("audioDir") + newIndex + AUDIO_EXTENSION);
+				oldAudioPath.renameTo(newAudioPath);
+			}
+			labWords.clear();
+			//now we need to write from storage to lab
+			int lastStorageIndex;
+			for (int i = 0; i < num; i++) {
+				lastStorageIndex = storageWords.size() - 1;
+				newIndex = i + 1;
+				Word lastStorageWord = storageWords.get(lastStorageIndex);
+				
+				labWords.add(lastStorageWord);
+				oldAudioPath = new File(lastStorageWord.getAudio());
+				newAudioPath = new File(LAB.get("audioDir") + newIndex + AUDIO_EXTENSION);
+				oldAudioPath.renameTo(newAudioPath);
+				
+				storageWords.remove(lastStorageIndex);
+			}
+			
+			String updatedLab = "";
+			String updatedBrain = "";
+			String updatedStorage = "";
+			for (Word labWord : labWords) {
+				updatedLab += labWord.getEn() + "\n";
+				updatedLab += labWord.getRu() + "\n";
+				updatedLab += labWord.getDef() + "\n";
+			}
+			for (Word brainWord : brainWords) {
+				updatedBrain += brainWord.getEn() + "\n";
+				updatedBrain += brainWord.getRu() + "\n";
+				updatedBrain += brainWord.getDef() + "\n";
+			}
+			for (Word storageWord : storageWords) {
+				updatedStorage += storageWord.getEn() + "\n";
+				updatedStorage += storageWord.getRu() + "\n";
+				updatedStorage += storageWord.getDef() + "\n";
+			}
+			
+			try {
+				updatedLab = updatedLab.substring(0, updatedLab.length() - 1);
+			}
+			catch (StringIndexOutOfBoundsException e) {}
+			
+			try {
+				updatedBrain = updatedBrain.substring(0, updatedBrain.length() - 1);
+			}
+			catch (StringIndexOutOfBoundsException e) {}
+			
+			try {
+				updatedStorage = updatedStorage.substring(0, updatedStorage.length() - 1);
+			}
+			catch (StringIndexOutOfBoundsException e) {}
+			
+			writeFile(new File(LAB.get("words")), updatedLab);
+			writeFile(new File(BRAIN.get("words")), updatedBrain);
+			writeFile(new File(STORAGE.get("readyToGo")), updatedStorage);
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Man, you should extend your storage for sure");
+		}
 	}
 }
