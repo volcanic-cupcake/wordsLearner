@@ -158,7 +158,7 @@ public class Learn extends Mode {
 		
 		//built sentences
 		ArrayList<String> lines = new ArrayList<String>();
-		File sentenceFile = new File("log/builtWords.txt");
+		File sentenceFile = new File(Main.LOG.get("builtWords"));
 		boolean builtWordsExists = sentenceFile.exists();
 		if (builtWordsExists) {
 			Scanner scanner = new Scanner(sentenceFile);

@@ -16,12 +16,17 @@ import org.apache.commons.io.FileUtils;
 public class Main {
 	static final String AUDIO_EXTENSION = ".mp3";
 	
+	static HashMap<String, String> LOG = new HashMap<String, String>();
 	static HashMap<String, String> STORAGE = new HashMap<String, String>();
 	static HashMap<String, String> LAB = new HashMap<String, String>();
 	static HashMap<String, String> BRAIN = new HashMap<String, String>();
 	
 	
 	public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
+		final String LOG_PATH = "log/";
+		LOG.put("mistakes", LOG_PATH + "mistakes.txt");
+		LOG.put("builtWords", LOG_PATH + "builtWords.txt");
+		
 		final String STORAGE_PATH = "files/storage/";
 		STORAGE.put("audioDir", STORAGE_PATH + "audio/");
 		STORAGE.put("shuffledAudioDir", STORAGE_PATH + "shuffledAudio/");

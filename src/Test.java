@@ -94,7 +94,7 @@ public class Test extends Mode{
 		Word word;
 		String message;
 		String mistakeLines = "";
-		File mistakesFile = new File("log/mistakes.txt");
+		File mistakesFile = new File(Main.LOG.get("mistakes"));
 		boolean mistakesExists = mistakesFile.exists();
 		
 		for (int i = 0; i < words.size(); i++) {
