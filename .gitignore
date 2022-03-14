@@ -1,0 +1,17 @@
+theory.ods
+bin/
+
+backUp/*
+!backUp/.gitkeep
+
+files/lab/audio/*
+!files/lab/audio/.gitkeep
+
+files/brain/audio/*
+!files/brain/audio/.gitkeep
+
+files/storage/audio/*
+!files/storage/audio/.gitkeep
+
+files/storage/shuffledAudio/*
+!files/storage/shuffledAudio/.gitkeep

@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import javax.sound.sampled.LineUnavailableException;
@@ -13,10 +14,37 @@ import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 
 public class Main {
+	static final String AUDIO_EXTENSION = ".mp3";
+	
+	static HashMap<String, String> STORAGE = new HashMap<String, String>();
+	static HashMap<String, String> LAB = new HashMap<String, String>();
+	static HashMap<String, String> BRAIN = new HashMap<String, String>();
+	
 	
 	public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
-		File file = new File("files/words.txt");
-		Scanner scanner = new Scanner(file);
+		final String STORAGE_PATH = "files/storage/";
+		STORAGE.put("audioDir", STORAGE_PATH + "audio/");
+		STORAGE.put("shuffledAudioDir", STORAGE_PATH + "shuffledAudio/");
+		STORAGE.put("storage", STORAGE_PATH + "storage.txt");
+		STORAGE.put("readyToGo", STORAGE_PATH + "readyToGo.txt");
+		STORAGE.put("findAudio", STORAGE_PATH + "findAudio.txt");
+		
+		final String LAB_PATH = "files/lab/";
+		LAB.put("audioDir", LAB_PATH + "audio/");
+		LAB.put("words", LAB_PATH + "labWords.txt");
+		LAB.put("separateEnglish", LAB_PATH + "separateTxt/english.txt");
+		LAB.put("separateRussian", LAB_PATH + "separateTxt/russian.txt");
+		LAB.put("separateDefinitions", LAB_PATH + "separateTxt/definitions.txt");
+		
+		final String BRAIN_PATH = "files/brain/";
+		BRAIN.put("audioDir", BRAIN_PATH + "audio/");
+		BRAIN.put("words", BRAIN_PATH + "brainWords.txt");
+		BRAIN.put("separateEnglish", BRAIN_PATH + "separateTxt/english.txt");
+		BRAIN.put("separateRussian", BRAIN_PATH + "separateTxt/russian.txt");
+		BRAIN.put("separateDefinitions", BRAIN_PATH + "separateTxt/definitions.txt");
+		
+		File labFile = new File(LAB.get("words"));
+		Scanner scanner = new Scanner(labFile);
 		int counter = 1;
 		int index = 1;
 		String line;
@@ -39,7 +67,7 @@ public class Main {
 				defWord = line;
 				counter = 0;
 				
-				pathWord = "files/audio/" + index + ".mp3";
+				pathWord = LAB.get("audioDir") + index + AUDIO_EXTENSION;
 				index++;
 				word = new Word(engWord, rusWord, defWord, pathWord);
 				words.add(word);
@@ -50,7 +78,7 @@ public class Main {
 			counter++;
 		}
 		scanner.close();
-		String wordsAvailable = "Words available: " + Integer.toString(Word.getNumber());
+		String wordsAvailable = "Lab words available: " + Integer.toString(Word.getNumber());
 		//__________________________________________________________
 		String input = "";
 		int answer = 228;
@@ -77,10 +105,23 @@ public class Main {
 						setUp1 = false;
 						break rangeLoop;
 					}
+					
+					File singleLabFile = new File(LAB.get("words"));
+					File englishLabFile = new File(LAB.get("separateEnglish")); 
+					File russianLabFile = new File(LAB.get("separateRussian")); 
+					File definitionsLabFile = new File(LAB.get("separateDefinitions"));
+					
+					File singleBrainFile = new File(BRAIN.get("words"));
+					File englishBrainFile = new File(BRAIN.get("separateEnglish")); 
+					File russianBrainFile = new File(BRAIN.get("separateRussian")); 
+					File definitionsBrainFile = new File(BRAIN.get("separateDefinitions"));
+					
 					switch(input.toLowerCase()) {
 					case "/help":
-						String helpCommands = "/single to reparate" + "\n";
-						helpCommands += "/separate to single" + "\n\n\n";
+						String helpCommands = "/single to separate lab" + "\n";
+						helpCommands += "/separate to single lab" + "\n\n";
+						helpCommands += "/single to separate brain" + "\n";
+						helpCommands += "/separate to single brain" + "\n\n\n";
 						helpCommands += "/storage to find" + "\n";
 						helpCommands += "/give list" + "\n";
 						helpCommands += "/rename audios" + "\n";
@@ -93,16 +134,28 @@ public class Main {
 					case "/back":
 						setUp1 = false;
 						break rangeLoop;
-					case "/single to separate":
+					case "/single to separate lab":
 						backUpFiles();
 						JOptionPane.showMessageDialog(null, "back up has been completed");
-						singleToSeparate();
+						singleToSeparate(singleLabFile, englishLabFile, russianLabFile, definitionsLabFile);
 						JOptionPane.showMessageDialog(null, "Done :)");
 						break;
-					case "/separate to single":
+					case "/separate to single lab":
 						backUpFiles();
 						JOptionPane.showMessageDialog(null, "back up has been completed");
-						separateToSingle();
+						separateToSingle(singleLabFile, englishLabFile, russianLabFile, definitionsLabFile);
+						JOptionPane.showMessageDialog(null, "Done :)");
+						break;
+					case "/single to separate brain":
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						singleToSeparate(singleBrainFile, englishBrainFile, russianBrainFile, definitionsBrainFile);
+						JOptionPane.showMessageDialog(null, "Done :)");
+						break;
+					case "/separate to single brain":
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						separateToSingle(singleBrainFile, englishBrainFile, russianBrainFile, definitionsBrainFile);
 						JOptionPane.showMessageDialog(null, "Done :)");
 						break;
 					case "/storage to find":
@@ -128,7 +181,7 @@ public class Main {
 					case "/give list":
 						String output = "";
 						String temp;
-						Scanner deezScanner = new Scanner(new File("files/storage/findAudio.txt"));
+						Scanner deezScanner = new Scanner(new File(STORAGE.get("findAudio")));
 						while(deezScanner.hasNextLine()) {
 							temp = deezScanner.nextLine();
 							output = output + "\"" + temp.strip() + "\" ";
@@ -318,11 +371,8 @@ public class Main {
 		writer.write(content);
 		writer.close();
 	}
-	public static void separateToSingle() throws IOException {
-		File singleFile = new File("files/words.txt");
-		File englishFile = new File("files/separateTxt/english.txt"); 
-		File russianFile = new File("files/separateTxt/russian.txt"); 
-		File definitionsFile = new File("files/separateTxt/definitions.txt");
+	public static void separateToSingle(File singleFile, File englishFile, File russianFile, File definitionsFile) throws IOException {
+		
 		boolean exist = singleFile.exists() && englishFile.exists() && russianFile.exists() && definitionsFile.exists();
 		
 		if (exist) {
@@ -350,12 +400,8 @@ public class Main {
 			JOptionPane.showMessageDialog(null, "Some file is missing");
 		}
 	}
-	public static void singleToSeparate() throws IOException {
+	public static void singleToSeparate(File singleFile, File englishFile, File russianFile, File definitionsFile) throws IOException {
 		
-		File singleFile = new File("files/words.txt");
-		File englishFile = new File("files/separateTxt/english.txt"); 
-		File russianFile = new File("files/separateTxt/russian.txt"); 
-		File definitionsFile = new File("files/separateTxt/definitions.txt");
 		boolean exist = singleFile.exists() && englishFile.exists() && russianFile.exists() && definitionsFile.exists();
 		
 		if (exist) {
@@ -396,8 +442,8 @@ public class Main {
 	
 	public static void storageToFind() throws IOException {
 		
-		File singleFile = new File("files/storage/storage.txt");
-		File englishFile = new File("files/storage/findAudio.txt"); 
+		File singleFile = new File(STORAGE.get("storage"));
+		File englishFile = new File(STORAGE.get("findAudio")); 
 		boolean exist = singleFile.exists() && englishFile.exists();
 		
 		if (exist) {
@@ -428,13 +474,13 @@ public class Main {
 		}
 	}
 	public static void renameAudios(int firstIndex) throws IOException {
-		String path = "files/storage/audio";
+		String path = STORAGE.get("audioDir");
 		File audiodir = new File(path);
 		String[] fnames = audiodir.list();
 		ArrayList<String> words = new ArrayList<String>();
 		ArrayList<Integer> foundIndexes = new ArrayList<Integer>();
 		
-		Scanner scanner = new Scanner(new File("files/storage/findAudio.txt"));
+		Scanner scanner = new Scanner(new File(STORAGE.get("findAudio")));
 		while(scanner.hasNextLine()) {
 			words.add(scanner.nextLine().strip());
 		}
@@ -458,8 +504,8 @@ public class Main {
 				word = words.get(i);
 				if (word.equals(wordOfAudio) || word.equals(wordOfAudio2)) {
 					foundIndexes.add(i);
-					File wordFile = new File(path + "/" + fname);
-					String newPath = path + "/" + (firstIndex + counter) + ".mp3";
+					File wordFile = new File(path + fname);
+					String newPath = path + (firstIndex + counter) + AUDIO_EXTENSION;
 					counter++;
 					wordFile.renameTo(new File(newPath));
 				}
@@ -478,12 +524,12 @@ public class Main {
 				text = text.substring(0, text.length() - 1);
 			}
 			catch (StringIndexOutOfBoundsException e) {}
-			writeFile(new File("files/storage/findAudio.txt"), text);
+			writeFile(new File(STORAGE.get("findAudio")), text);
 			
 			String readyToGo = "";
 			String storage = "";
-			ArrayList<String> storageLines = readFile(new File ("files/storage/storage.txt"));
-			ArrayList<String> newStorageLines = readFile(new File ("files/storage/storage.txt"));
+			ArrayList<String> storageLines = readFile(new File (STORAGE.get("storage")));
+			ArrayList<String> newStorageLines = readFile(new File (STORAGE.get("storage")));
 			ArrayList<Integer> changesStorage = new ArrayList<Integer>();
 			int eng;
 			int rus;
@@ -524,13 +570,13 @@ public class Main {
 				storage = storage.substring(0, storage.length() - 1);
 			}
 			catch (StringIndexOutOfBoundsException e) {}
-			writeFile(new File("files/storage/readyToGo.txt"), readyToGo, true);
-			writeFile(new File("files/storage/storage.txt"), storage);
+			writeFile(new File(STORAGE.get("readyToGo")), readyToGo, true);
+			writeFile(new File(STORAGE.get("storage")), storage);
 		}
 	}
 	
 	public static void shuffleReadyToGo() throws IOException {
-		ArrayList<String> lines = readFile(new File("files/storage/readyToGo.txt"));
+		ArrayList<String> lines = readFile(new File(STORAGE.get("readyToGo")));
 		ArrayList<Word> words = new ArrayList<Word>();
 		String engWord = "";
 		String rusWord = "";
@@ -543,7 +589,7 @@ public class Main {
 		boolean stop = true;
 		while (stop) {
 			inc++;
-			File file = new File("files/storage/audio/" + inc + ".mp3");
+			File file = new File(STORAGE.get("audioDir") + inc + AUDIO_EXTENSION);
 			if (file.exists()) {
 				stop = false;
 			}
@@ -564,7 +610,7 @@ public class Main {
 				break;
 			case 2:
 				defWord = line;
-				words.add(new Word(engWord, rusWord, defWord, "files/storage/audio/" + (wordNum + inc) + ".mp3", false));
+				words.add(new Word(engWord, rusWord, defWord, STORAGE.get("audioDir") + (wordNum + inc) + AUDIO_EXTENSION, false));
 				wordNum++;
 				counter = 0;
 				break;
@@ -583,7 +629,7 @@ public class Main {
 			File oldName = new File(word.getAudio());
 			if (oldName.exists()) {
 				System.out.println(i + " New name: " + "files/storage/shuffledAudio/" + (i + inc) + ".mp3"); //shit
-				File newName = new File("files/storage/shuffledAudio/" + (i + inc) + ".mp3");
+				File newName = new File(STORAGE.get("shuffledAudioDir") + (i + inc) + AUDIO_EXTENSION);
 				oldName.renameTo(newName);
 			}
 		}
@@ -591,6 +637,6 @@ public class Main {
 			update = update.substring(0, update.length() - 1);
 		}
 		catch (StringIndexOutOfBoundsException e) {}
-		writeFile(new File("files/storage/readyToGo.txt"), update);
+		writeFile(new File(STORAGE.get("readyToGo")), update);
 	}
 }
