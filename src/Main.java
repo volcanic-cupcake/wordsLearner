@@ -12,6 +12,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
+import java.util.Date;
 
 public class Main {
 	static final String AUDIO_EXTENSION = ".mp3";
@@ -26,6 +27,7 @@ public class Main {
 		final String LOG_PATH = "log/";
 		LOG.put("mistakes", LOG_PATH + "mistakes.txt");
 		LOG.put("builtWords", LOG_PATH + "builtWords.txt");
+		LOG.put("reminders", LOG_PATH + "reminders.txt");
 		
 		final String STORAGE_PATH = "files/storage/";
 		STORAGE.put("audioDir", STORAGE_PATH + "audio/");
@@ -735,5 +737,82 @@ public class Main {
 		else {
 			JOptionPane.showMessageDialog(null, "Man, you should extend your storage for sure");
 		}
+	}
+	
+	public static void setReminders(int firstIndex, int lastIndex) throws IOException {
+		//after how many minutes those reminders should go (in minutes)
+		long[] timePeriods = {20, 1440, 20160, 86400}; //20 min, 1 day, 2 weeks, 2 months
+		
+		
+		File remindersFile = new File(LOG.get("reminders"));
+		ArrayList<String> reminders = readFile(remindersFile);
+		long minutesNow = new Date().getTime() / 1000 / 60;
+		long reminderTime;
+		String newReminders = "";
+		for (long timePeriod : timePeriods) {
+			reminderTime = minutesNow + timePeriod;
+			
+			newReminders += reminderTime + "\n";
+			newReminders += firstIndex + "\n";
+			newReminders += lastIndex + "\n";
+		}
+		
+		try {
+			newReminders = newReminders.substring(0, newReminders.length() - 1);
+		}
+		catch (StringIndexOutOfBoundsException e) {}
+		
+		if (!reminders.isEmpty()) {
+			newReminders = "\n" + newReminders;
+		}
+		writeFile(remindersFile, newReminders, true);
+	}
+	public static void overrideReminders(ArrayList<Reminder> reminders) throws IOException {
+		String updatedReminders = "";
+		for (Reminder reminder : reminders) {
+			updatedReminders += reminder.getTime() + "\n";
+			updatedReminders += reminder.getFirstIndex() + "\n";
+			updatedReminders += reminder.getLastIndex() + "\n";
+		}
+		try {
+			updatedReminders = updatedReminders.substring(0, updatedReminders.length() - 1);
+		}
+		catch (StringIndexOutOfBoundsException e) {}
+		
+		writeFile(new File(LOG.get("reminders")), updatedReminders);
+	}
+	
+	public static void showReminders() throws FileNotFoundException {
+		ArrayList<Reminder> reminders = new ArrayList<Reminder>();
+		File remindersFile = new File(LOG.get("reminders"));
+		ArrayList<String> remindersLines = readFile(remindersFile);
+		long time = 0;
+		int firstIndex = 0;
+		int lastIndex = 0;
+		int counter = 0;
+		
+		for (String remindersLine : remindersLines) {
+			switch (counter) {
+			case 0:
+				time = Long.parseLong(remindersLine);
+				counter++;
+				break;
+			case 1:
+				firstIndex = Integer.parseInt(remindersLine);
+				counter++;
+				break;
+			case 2:
+				lastIndex = Integer.parseInt(remindersLine);
+				reminders.add(new Reminder(time, firstIndex, lastIndex));
+				counter = 0;
+				break;
+			}
+		}
+		// now I just have to:
+		// sort reminders by time
+		// show reminders that have expired right now && let choose words from the reminder and start learning them rightaway
+		// let list all reminders with a command
+		// let delete reminders you no more need
+		// great success
 	}
 }
