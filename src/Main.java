@@ -242,53 +242,57 @@ public class Main {
 					}
 				}
 				
-				modeLoop:
-				while (setUp1) {
-					String[] options2 = {"go back", "help", "Learn w translation", "Learn w definition",
-							"Learn w both", "Learn quick", "Learn w audio", "Test modes"};
-					answer = JOptionPane.showOptionDialog(null, "Select a mode\n/help for the list of modes",
-			                ":O",
-			                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options2, options2[7]);
-					Mode mode;
-					switch (answer) {
-					case -1:
-						System.exit(0);
-						break;
-					case 0:
-						setUp1 = false;
-						break modeLoop;
-					case 1:
-						JOptionPane.showMessageDialog(null, "List of modes: bla-bla-bla");
-						break;
-					case 2:
-						mode = new Learn(true, true, false, true, true, true);
-						mode.start(chosenWords);
-						break;
-					case 3:
-						mode = new Learn(true, false, true, true, true, true);
-						mode.start(chosenWords);
-						break;
-					case 4:
-						mode = new Learn(true, true, true, true, true, true);
-						mode.start(chosenWords);
-						break;
-					case 5:
-						mode = new Learn(true, false, false, true, true, true);
-						mode.start(chosenWords);
-						break;
-					case 6:
-						mode = new Learn(false, false, false, true, true, true);
-						mode.start(chosenWords);
-						break;
-					case 7:
-						testModesGUI(chosenWords);
-						break;
-					}
-				}
+				GUI(chosenWords, setUp1);
 				break;
 			
 			}
 		}
+	}
+	public static void GUI(ArrayList<Word> chosenWords, boolean setUp1) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
+		int answer = 228;
+		modeLoop:
+			while (setUp1) {
+				String[] options2 = {"go back", "help", "Learn w translation", "Learn w definition",
+						"Learn w both", "Learn quick", "Learn w audio", "Test modes"};
+				answer = JOptionPane.showOptionDialog(null, "Select a mode\n/help for the list of modes",
+		                ":O",
+		                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options2, options2[7]);
+				Mode mode;
+				switch (answer) {
+				case -1:
+					System.exit(0);
+					break;
+				case 0:
+					setUp1 = false;
+					break modeLoop;
+				case 1:
+					JOptionPane.showMessageDialog(null, "List of modes: bla-bla-bla");
+					break;
+				case 2:
+					mode = new Learn(true, true, false, true, true, true);
+					mode.start(chosenWords);
+					break;
+				case 3:
+					mode = new Learn(true, false, true, true, true, true);
+					mode.start(chosenWords);
+					break;
+				case 4:
+					mode = new Learn(true, true, true, true, true, true);
+					mode.start(chosenWords);
+					break;
+				case 5:
+					mode = new Learn(true, false, false, true, true, true);
+					mode.start(chosenWords);
+					break;
+				case 6:
+					mode = new Learn(false, false, false, true, true, true);
+					mode.start(chosenWords);
+					break;
+				case 7:
+					testModesGUI(chosenWords);
+					break;
+				}
+			}
 	}
 	public static ArrayList<Word> pullWords(File wordsFile, String audioDir) throws FileNotFoundException {
 		Scanner scanner = new Scanner(wordsFile);
@@ -828,7 +832,7 @@ public class Main {
 		
 		writeFile(new File(LOG.get("reminders")), updatedReminders);
 	}
-	/*public void callReminderPages(String messageSet) {
+	public static void callReminderPages(ArrayList<Reminder> reminders, String messageSet) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		String messageLine = "";
 		ArrayList<String> messagePages = new ArrayList<String>();
 		Scanner scanner = new Scanner(messageSet);
@@ -850,11 +854,12 @@ public class Main {
 			messagePages.add(messageLine);
 		}
 		pageNum = messagePages.size();
+		String pageInput;
 		if (pageNum < 2) {
-			JOptionPane.showInputDialog(null, messageLine);
+			pageInput = JOptionPane.showInputDialog(null, messageLine);
+			switchReminderPageInput(reminders, pageInput, messageSet);
 		}
 		else {
-			String pageInput;
 			String pageMsg;
 			for (int i = 0; i < pageNum; i++) {
 				pageMsg = "Page " + Integer.toString(i + 1) + '/' + Integer.toString(pageNum) + "\n\n" + messagePages.get(i);
@@ -871,10 +876,31 @@ public class Main {
 				else if (pageInput.equals("/exit")) {
 					break;
 				}
+				else {
+					switchReminderPageInput(reminders, pageInput, messageSet);
+				}
 			}
 		}
-	}*/
-
+	}
+	public static void switchReminderPageInput(ArrayList<Reminder> reminders, String pageInput, String messageSet) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
+		if (pageInput.contains("/reminder ")) {
+			ArrayList<Word> chosenWords = new ArrayList<Word>();
+			ArrayList<Word> brainWords = pullWords(new File(BRAIN.get("words")), BRAIN.get("audioDir"));
+			pageInput = pageInput.strip().substring(10);
+			int reminderIndex = Integer.parseInt(pageInput);
+			Reminder reminder = reminders.get(reminderIndex);
+			int firstIndex = reminder.getFirstIndex();
+			int lastIndex = reminder.getLastIndex();
+			for (int i = (firstIndex - 1); i < lastIndex; i++) {
+				chosenWords.add(brainWords.get(i));
+			}
+			GUI(chosenWords, true);
+		}
+		else {
+			JOptionPane.showInputDialog("invalid command");
+			callReminderPages(reminders, messageSet);
+		}
+	}
 	public static void showReminders() throws FileNotFoundException {
 		ArrayList<Reminder> reminders = getReminders();
 		ArrayList<Reminder> expired = new ArrayList<Reminder>();
@@ -886,7 +912,7 @@ public class Main {
 			}
 		}
 		if (!expired.isEmpty()) {
-			
+			//callReminderPages(ArrayList<Reminder> reminders, String messageSet)
 		}
 		// now I just have to:
 		// +done sort reminders by time
@@ -894,5 +920,10 @@ public class Main {
 		// let list all reminders with a command
 		// let delete reminders you no more need
 		// great success
+		
+		//I wanted to setReminders() where its needed
+		// finish showReminders()
+		// showReminders() where its needed
+		// help remove reminders using overrideReminders()
 	}
 }
