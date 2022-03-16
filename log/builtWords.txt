@@ -23,3 +23,19 @@ tankard:
 	my dad ordered me a beer tankard bc I turned 18
 detain:
 	police detained me bc I was suspicious
+inferior to:
+	apple is inferior to xiaomi
+	Russians are INFERIOR to Ukrainians
+	/ru
+chilly reception:
+	Ukrainians greeted russians with such a chilly reception
+	it was such a chilly reception
+drown out:
+	her scream drowned out his voice
+	Igor's audio system drowned out his speech
+abomination:
+	anime is such an abomination
+	Russian invasion is such an abomination
+rumor has it that:
+	rumor has it that Maxim is staright
+	rumor had it that Igor is an anime fan

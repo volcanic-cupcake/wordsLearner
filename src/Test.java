@@ -119,7 +119,7 @@ public class Test extends Mode{
 					i--;
 					continue;
 				}
-				else if (input.equals("/ru")) {
+				else if (input.equals("/tr")) {
 					showElement(word.getRu());
 					i--;
 					continue;

@@ -129,7 +129,7 @@ public class Learn extends Mode {
 					i--;
 					continue;
 				}
-				else if (input.equals("r/u")) {
+				else if (input.equals("/tr")) {
 					showElement(word.getRu());
 					i--;
 					continue;
