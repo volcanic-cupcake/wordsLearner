@@ -107,6 +107,8 @@ public class Main {
 						helpCommands += "/give list" + "\n";
 						helpCommands += "/rename audios" + "\n";
 						helpCommands += "/shuffle ready to go" + "\n";
+						helpCommands += "/yay" + "\n";
+						helpCommands += "/time to learn" + "\n";
 						JOptionPane.showMessageDialog(null, helpCommands);
 						break;
 					case "/exit":
@@ -815,7 +817,6 @@ public class Main {
 	}
 	public static ArrayList<Reminder> getReminders() throws FileNotFoundException {
 		ArrayList<Reminder> reminders = new ArrayList<Reminder>();
-		
 		File remindersFile = new File(LOG.get("reminders"));
 		ArrayList<String> remindersLines = readFile(remindersFile);
 		long time = 0;
@@ -837,28 +838,37 @@ public class Main {
 			case 2:
 				lastIndex = Integer.parseInt(remindersLine);
 				newReminder = new Reminder(time, firstIndex, lastIndex);
+				reminders.add(newReminder);
 				
-				if (!reminders.isEmpty()) {
-					long newReminderTime = newReminder.getTime();
-					Reminder reminder;
-					long reminderTime;
-					for (int i = 0; i < reminders.size(); i++) {
-						reminder = reminders.get(i);
-						reminderTime = reminder.getTime();
-						if (newReminderTime < reminderTime) {
-							reminders.add(i, newReminder);
-							break;
-						}
-					}
-				}
-				else {
-					reminders.add(newReminder);
-				}
 				counter = 0;
 				break;
 			}
 		}
-		return reminders;
+		if (reminders.isEmpty()) {
+			return reminders;
+		}
+		ArrayList<Reminder> sortedReminders = new ArrayList<Reminder>();
+		sortedReminders.add(reminders.get(0));
+		reminders.remove(0);
+		Reminder reminder;
+		Reminder sortedReminder;
+		int sortedRemindersSize;
+		for (int i = 0; i < reminders.size(); i++) {
+			reminder = reminders.get(i);
+			sortedRemindersSize = sortedReminders.size();
+			for (int j = 0; j < sortedRemindersSize; j++) {
+				sortedReminder = sortedReminders.get(j);
+				if (reminder.getTime() < sortedReminder.getTime()) {
+					sortedReminders.add(j, reminder);
+					break;
+				}
+				else if (j == sortedRemindersSize - 1) {
+					sortedReminders.add(reminder);
+					break;
+				}
+			}
+		}
+		return sortedReminders;
 	}
 	public static void setReminders(int firstIndex, int lastIndex) throws IOException {
 		//after how many minutes those reminders should go (in minutes)
@@ -968,6 +978,22 @@ public class Main {
 			}
 			GUI(chosenWords, true);
 		}
+		else if (pageInput.equals("/RM RANGE")) {
+			int first = Integer.parseInt(JOptionPane.showInputDialog("Select the first one"));
+			int last = Integer.parseInt(JOptionPane.showInputDialog("Select the last one"));
+			for (int i = last; i >= first; i--) {
+				reminders.remove(i);
+			}
+			overrideReminders(reminders);
+			showReminders();
+		}
+		else if (pageInput.contains("/rm ")) {
+			pageInput = pageInput.strip().substring(4);
+			int reminderIndex = Integer.parseInt(pageInput);
+			reminders.remove(reminderIndex);
+			overrideReminders(reminders);
+			showReminders();
+		}
 		else {
 			JOptionPane.showMessageDialog(null, "invalid command");
 			callReminderPages(reminders, messageSet);
@@ -982,7 +1008,7 @@ public class Main {
 				expiredReminders.add(reminder);
 			}
 		}
-		String message = "You have " + expiredReminders.size() + " sets of words to repeat :D\n\n";
+		String message = "You have " + expiredReminders.size() + " sets of words to repeat :D\n\n/rm <x>\n/RM RANGE\n\n";
 		if (!expiredReminders.isEmpty()) {
 			Reminder expiredReminder;
 			for (int i = 0; i < expiredReminders.size(); i++) {
@@ -990,19 +1016,7 @@ public class Main {
 				message += i + ": from " + expiredReminder.getFirstIndex() + " to " + expiredReminder.getLastIndex() + "\n";
 			}
 			message = message.substring(0, message.length() - 1);
-			callReminderPages(expiredReminders, message);
+			callReminderPages(reminders, message);
 		}
-		// now I just have to:
-		// +done sort reminders by time
-		// +done show reminders that have expired right now && let choose words from the reminder and start learning them rightaway
-		// -not done let list all reminders with a command
-		// -not done let delete reminders you no more need
-		// great success
-		
-		// I wanted to:
-		// +done setReminders() where its needed
-		// +done finish showReminders()
-		// +done showReminders() where its needed
-		// - not done help remove reminders using overrideReminders()
 	}
 }
