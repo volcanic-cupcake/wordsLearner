@@ -55,16 +55,11 @@ public class Main {
 		ArrayList<Word> storageWords = pullWords(new File(STORAGE.get("readyToGo")), STORAGE.get("audioDir"));
 		
 		ArrayList<Word> chosenWords = new ArrayList<Word>();
-		
-		String wordsAvailable = "Words in brain: " + brainWords.size();
-		wordsAvailable += "\n" + "Ready to go words: " + storageWords.size();
-		wordsAvailable += "\n" + "Words in Lab: " + labWords.size();
-		wordsAvailable += "\n\n" + "Total: " + Word.getNumber();
 		//__________________________________________________________
 		String input = "";
 		int answer = 228;
 		while(true) {
-			chosenWords.clear(); //test
+			chosenWords.clear();
 			boolean setUp1 = true;
 			String[] options = {"start", "help"};
 			answer = JOptionPane.showOptionDialog(null, "Hello!\nClick \"help\" for the commands",
@@ -78,9 +73,14 @@ public class Main {
 				JOptionPane.showMessageDialog(null, "Commands: alalalalla");
 				break;
 			case 0:
-
+				showReminders(); //test
 				rangeLoop:
 				while(setUp1) {
+					String wordsAvailable = "Words in brain: " + brainWords.size();
+					wordsAvailable += "\n" + "Ready to go words: " + storageWords.size();
+					wordsAvailable += "\n" + "Words in Lab: " + labWords.size();
+					wordsAvailable += "\n\n" + "Total: " + Word.getNumber();
+					
 					input = JOptionPane.showInputDialog(null, "Time to select the range of words we're gonna learn today.\n/help for instructions.\nSelect the FIRST word of a range.\n\n" + wordsAvailable);
 					if (input == null) {
 						setUp1 = false;
@@ -125,6 +125,7 @@ public class Main {
 						backUpFiles();
 						JOptionPane.showMessageDialog(null, "back up has been completed");
 						separateToSingle(singleLabFile, englishLabFile, russianLabFile, definitionsLabFile);
+						refreshWords(labWords, brainWords, storageWords);
 						JOptionPane.showMessageDialog(null, "Done :)");
 						break;
 					case "/single to separate brain":
@@ -137,6 +138,7 @@ public class Main {
 						backUpFiles();
 						JOptionPane.showMessageDialog(null, "back up has been completed");
 						separateToSingle(singleBrainFile, englishBrainFile, russianBrainFile, definitionsBrainFile);
+						refreshWords(labWords, brainWords, storageWords);
 						JOptionPane.showMessageDialog(null, "Done :)");
 						break;
 					case "/storage to find":
@@ -151,12 +153,14 @@ public class Main {
 						backUpFiles();
 						JOptionPane.showMessageDialog(null, "back up has been completed");
 						renameAudios(input1338);
+						refreshWords(labWords, brainWords, storageWords);
 						JOptionPane.showMessageDialog(null, "Done :)");
 						break;
 					case "/shuffle ready to go":
 						backUpFiles();
 						JOptionPane.showMessageDialog(null, "back up has been completed");
 						shuffleReadyToGo();
+						refreshWords(labWords, brainWords, storageWords);
 						JOptionPane.showMessageDialog(null, "Done :)");
 						break;
 					case "/give list":
@@ -175,8 +179,15 @@ public class Main {
 						backUpFiles();
 						JOptionPane.showMessageDialog(null, "back up has been completed");
 						timeToLearn(labWords, brainWords, storageWords);
+						// no need to refreshWords()
 						JOptionPane.showMessageDialog(null, "Done :)");
-						System.exit(0);
+						break;
+					case "/yay":
+						backUpFiles();
+						JOptionPane.showMessageDialog(null, "back up has been completed");
+						yay(labWords, brainWords);
+						// no need to refreshWords()
+						JOptionPane.showMessageDialog(null, "Done :)");
 						break;
 					default:
 						try {
@@ -329,6 +340,11 @@ public class Main {
 		}
 		scanner.close();
 		return words;
+	}
+	public static void refreshWords(ArrayList<Word> labWords, ArrayList<Word> brainWords, ArrayList<Word> storageWords) throws FileNotFoundException {
+		labWords = pullWords(new File(LAB.get("words")), LAB.get("audioDir"));
+		brainWords = pullWords(new File(BRAIN.get("words")), BRAIN.get("audioDir"));
+		storageWords = pullWords(new File(STORAGE.get("readyToGo")), STORAGE.get("audioDir"));
 	}
 	public static void testModesGUI(ArrayList<Word> chosenWords) throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		int answer = 0;
@@ -502,6 +518,7 @@ public class Main {
 		}
 	}
 	public static void renameAudios(int firstIndex) throws IOException {
+		boolean readyToGoIsEmpty = readFile(new File(STORAGE.get("readyToGo"))).isEmpty();
 		String path = STORAGE.get("audioDir");
 		File audiodir = new File(path);
 		String[] fnames = audiodir.list();
@@ -584,7 +601,12 @@ public class Main {
 				readyToGo += storageLines.get(def) + "\n";
 			}
 			try {
-				readyToGo = "\n" + readyToGo.substring(0, readyToGo.length() - 1);
+				if (readyToGoIsEmpty) {
+					readyToGo = readyToGo.substring(0, readyToGo.length() - 1);
+				}
+				else {
+					readyToGo = "\n" + readyToGo.substring(0, readyToGo.length() - 1);
+				}
 			}
 			catch (StringIndexOutOfBoundsException e) {}
 			Collections.reverse(changesStorage);
@@ -671,20 +693,28 @@ public class Main {
 		int num = Integer.parseInt(JOptionPane.showInputDialog(null, "How many words are we learning today?"));
 		int storageNum = storageWords.size();
 		if (num <= storageNum) {
+			int firstReminderIndex = brainWords.size() + 1;
+			boolean createReminers = !(labWords.isEmpty());
 			int brainNum;
 			int newIndex;
 			File oldAudioPath;
 			File newAudioPath;
+			String newAudioName;
 			for (Word labWord : labWords) {
 				brainNum = brainWords.size();
 				newIndex = brainNum + 1;
 				
-				brainWords.add(labWord);
+				newAudioName = BRAIN.get("audioDir") + newIndex + AUDIO_EXTENSION;
 				oldAudioPath = new File(labWord.getAudio());
-				newAudioPath = new File(BRAIN.get("audioDir") + newIndex + AUDIO_EXTENSION);
+				newAudioPath = new File(newAudioName);
+				
+				labWord.setAudio(newAudioName);
 				oldAudioPath.renameTo(newAudioPath);
+				brainWords.add(labWord);
 			}
+			int lastReminderIndex = brainWords.size();
 			labWords.clear();
+		
 			//now we need to write from storage to lab
 			int lastStorageIndex;
 			for (int i = 0; i < num; i++) {
@@ -692,10 +722,13 @@ public class Main {
 				newIndex = i + 1;
 				Word lastStorageWord = storageWords.get(lastStorageIndex);
 				
-				labWords.add(lastStorageWord);
+				newAudioName = LAB.get("audioDir") + newIndex + AUDIO_EXTENSION;
 				oldAudioPath = new File(lastStorageWord.getAudio());
-				newAudioPath = new File(LAB.get("audioDir") + newIndex + AUDIO_EXTENSION);
+				newAudioPath = new File(newAudioName);
+				
 				oldAudioPath.renameTo(newAudioPath);
+				lastStorageWord.setAudio(newAudioName);
+				labWords.add(lastStorageWord);
 				
 				storageWords.remove(lastStorageIndex);
 			}
@@ -737,12 +770,49 @@ public class Main {
 			writeFile(new File(LAB.get("words")), updatedLab);
 			writeFile(new File(BRAIN.get("words")), updatedBrain);
 			writeFile(new File(STORAGE.get("readyToGo")), updatedStorage);
+			if (createReminers) {
+				setReminders(firstReminderIndex, lastReminderIndex);
+			}
 		}
 		else {
 			JOptionPane.showMessageDialog(null, "Man, you should extend your storage for sure");
 		}
 	}
-	
+	public static void yay(ArrayList<Word> labWords, ArrayList<Word> brainWords) throws IOException {
+		File oldName;
+		File newName;
+		int newAudioIndex;
+		Word labWord;
+		String newPath;
+		int firstReminderIndex = brainWords.size() + 1;
+		boolean createReminers = !(labWords.isEmpty());
+		for (int i = 0; i < labWords.size(); i++) {
+			newAudioIndex = brainWords.size() + 1;
+			labWord = labWords.get(i);
+			newPath = BRAIN.get("audioDir") + newAudioIndex + AUDIO_EXTENSION;
+			oldName = new File(labWord.getAudio());
+			newName = new File(newPath);
+			
+			labWord.setAudio(newPath);
+			brainWords.add(labWord);
+			oldName.renameTo(newName);
+		}
+		int lastReminderIndex = brainWords.size();
+		labWords.clear();
+		
+		String updatedBrain = "";
+		for (Word brainWord : brainWords) {
+			updatedBrain += brainWord.getEn() + "\n";
+			updatedBrain += brainWord.getRu() + "\n";
+			updatedBrain += brainWord.getDef() + "\n";
+		}
+		updatedBrain = updatedBrain.substring(0, updatedBrain.length() - 1);
+		writeFile(new File(BRAIN.get("words")), updatedBrain);
+		writeFile(new File(LAB.get("words")), "");
+		if (createReminers) {
+			setReminders(firstReminderIndex, lastReminderIndex);
+		}
+	}
 	public static ArrayList<Reminder> getReminders() throws FileNotFoundException {
 		ArrayList<Reminder> reminders = new ArrayList<Reminder>();
 		
@@ -857,7 +927,9 @@ public class Main {
 		String pageInput;
 		if (pageNum < 2) {
 			pageInput = JOptionPane.showInputDialog(null, messageLine);
-			switchReminderPageInput(reminders, pageInput, messageSet);
+			if (pageInput != null) {
+				switchReminderPageInput(reminders, pageInput, messageSet);
+			}
 		}
 		else {
 			String pageMsg;
@@ -897,33 +969,40 @@ public class Main {
 			GUI(chosenWords, true);
 		}
 		else {
-			JOptionPane.showInputDialog("invalid command");
+			JOptionPane.showMessageDialog(null, "invalid command");
 			callReminderPages(reminders, messageSet);
 		}
 	}
-	public static void showReminders() throws FileNotFoundException {
+	public static void showReminders() throws UnsupportedAudioFileException, IOException, LineUnavailableException, InterruptedException {
 		ArrayList<Reminder> reminders = getReminders();
-		ArrayList<Reminder> expired = new ArrayList<Reminder>();
-		String message = "";
+		ArrayList<Reminder> expiredReminders = new ArrayList<Reminder>();
 		long minutesNow = new Date().getTime() / 1000 / 60;
 		for (Reminder reminder : reminders) {
 			if (reminder.getTime() <= minutesNow) {
-				expired.add(reminder);
+				expiredReminders.add(reminder);
 			}
 		}
-		if (!expired.isEmpty()) {
-			//callReminderPages(ArrayList<Reminder> reminders, String messageSet)
+		String message = "You have " + expiredReminders.size() + " sets of words to repeat :D\n\n";
+		if (!expiredReminders.isEmpty()) {
+			Reminder expiredReminder;
+			for (int i = 0; i < expiredReminders.size(); i++) {
+				expiredReminder = expiredReminders.get(i);
+				message += i + ": from " + expiredReminder.getFirstIndex() + " to " + expiredReminder.getLastIndex() + "\n";
+			}
+			message = message.substring(0, message.length() - 1);
+			callReminderPages(expiredReminders, message);
 		}
 		// now I just have to:
 		// +done sort reminders by time
-		// show reminders that have expired right now && let choose words from the reminder and start learning them rightaway
-		// let list all reminders with a command
-		// let delete reminders you no more need
+		// +done show reminders that have expired right now && let choose words from the reminder and start learning them rightaway
+		// -not done let list all reminders with a command
+		// -not done let delete reminders you no more need
 		// great success
 		
-		//I wanted to setReminders() where its needed
-		// finish showReminders()
-		// showReminders() where its needed
-		// help remove reminders using overrideReminders()
+		// I wanted to:
+		// +done setReminders() where its needed
+		// +done finish showReminders()
+		// +done showReminders() where its needed
+		// - not done help remove reminders using overrideReminders()
 	}
 }
