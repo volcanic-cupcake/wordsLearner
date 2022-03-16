@@ -1,15 +1,20 @@
 
 public class Reminder {
+	private static int number;
 	private long time;
 	private int firstIndex;
 	private int lastIndex;
 	
 	Reminder(long time, int firstIndex, int lastIndex) {
+		number++;
 		setTime(time);
 		setFirstIndex(firstIndex);
 		setLastIndex(lastIndex);
 	}
 	
+	public int getNumber() {
+		return number;
+	}
 	public long getTime() {
 		return this.time;
 	}

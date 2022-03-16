@@ -739,6 +739,53 @@ public class Main {
 		}
 	}
 	
+	public static ArrayList<Reminder> getReminders() throws FileNotFoundException {
+		ArrayList<Reminder> reminders = new ArrayList<Reminder>();
+		
+		File remindersFile = new File(LOG.get("reminders"));
+		ArrayList<String> remindersLines = readFile(remindersFile);
+		long time = 0;
+		int firstIndex = 0;
+		int lastIndex = 0;
+		int counter = 0;
+		Reminder newReminder;
+		
+		for (String remindersLine : remindersLines) {
+			switch (counter) {
+			case 0:
+				time = Long.parseLong(remindersLine);
+				counter++;
+				break;
+			case 1:
+				firstIndex = Integer.parseInt(remindersLine);
+				counter++;
+				break;
+			case 2:
+				lastIndex = Integer.parseInt(remindersLine);
+				newReminder = new Reminder(time, firstIndex, lastIndex);
+				
+				if (!reminders.isEmpty()) {
+					long newReminderTime = newReminder.getTime();
+					Reminder reminder;
+					long reminderTime;
+					for (int i = 0; i < reminders.size(); i++) {
+						reminder = reminders.get(i);
+						reminderTime = reminder.getTime();
+						if (newReminderTime < reminderTime) {
+							reminders.add(i, newReminder);
+							break;
+						}
+					}
+				}
+				else {
+					reminders.add(newReminder);
+				}
+				counter = 0;
+				break;
+			}
+		}
+		return reminders;
+	}
 	public static void setReminders(int firstIndex, int lastIndex) throws IOException {
 		//after how many minutes those reminders should go (in minutes)
 		long[] timePeriods = {20, 1440, 20160, 86400}; //20 min, 1 day, 2 weeks, 2 months
@@ -781,35 +828,68 @@ public class Main {
 		
 		writeFile(new File(LOG.get("reminders")), updatedReminders);
 	}
-	
-	public static void showReminders() throws FileNotFoundException {
-		ArrayList<Reminder> reminders = new ArrayList<Reminder>();
-		File remindersFile = new File(LOG.get("reminders"));
-		ArrayList<String> remindersLines = readFile(remindersFile);
-		long time = 0;
-		int firstIndex = 0;
-		int lastIndex = 0;
-		int counter = 0;
-		
-		for (String remindersLine : remindersLines) {
-			switch (counter) {
-			case 0:
-				time = Long.parseLong(remindersLine);
-				counter++;
-				break;
-			case 1:
-				firstIndex = Integer.parseInt(remindersLine);
-				counter++;
-				break;
-			case 2:
-				lastIndex = Integer.parseInt(remindersLine);
-				reminders.add(new Reminder(time, firstIndex, lastIndex));
-				counter = 0;
-				break;
+	/*public void callReminderPages(String messageSet) {
+		String messageLine = "";
+		ArrayList<String> messagePages = new ArrayList<String>();
+		Scanner scanner = new Scanner(messageSet);
+		int count = 0;
+		while(scanner.hasNextLine()) {
+			count++;
+			messageLine = messageLine + '\n' + scanner.nextLine();
+			if (count == 42) {
+				messagePages.add(messageLine);
+				messageLine = "";
+				count = 0;
 			}
 		}
+		scanner.close();
+		
+		int pageNum = messagePages.size();
+		if (pageNum != 0 && !messageLine.equals("")) {
+			//add last message line when it's not full
+			messagePages.add(messageLine);
+		}
+		pageNum = messagePages.size();
+		if (pageNum < 2) {
+			JOptionPane.showInputDialog(null, messageLine);
+		}
+		else {
+			String pageInput;
+			String pageMsg;
+			for (int i = 0; i < pageNum; i++) {
+				pageMsg = "Page " + Integer.toString(i + 1) + '/' + Integer.toString(pageNum) + "\n\n" + messagePages.get(i);
+				pageInput = JOptionPane.showInputDialog(null, pageMsg);
+				if (pageInput == null) {
+					if (i > 0) {
+						i = i - 2;
+					}
+					else {
+						i--;
+					}
+					continue;
+				}
+				else if (pageInput.equals("/exit")) {
+					break;
+				}
+			}
+		}
+	}*/
+
+	public static void showReminders() throws FileNotFoundException {
+		ArrayList<Reminder> reminders = getReminders();
+		ArrayList<Reminder> expired = new ArrayList<Reminder>();
+		String message = "";
+		long minutesNow = new Date().getTime() / 1000 / 60;
+		for (Reminder reminder : reminders) {
+			if (reminder.getTime() <= minutesNow) {
+				expired.add(reminder);
+			}
+		}
+		if (!expired.isEmpty()) {
+			
+		}
 		// now I just have to:
-		// sort reminders by time
+		// +done sort reminders by time
 		// show reminders that have expired right now && let choose words from the reminder and start learning them rightaway
 		// let list all reminders with a command
 		// let delete reminders you no more need
