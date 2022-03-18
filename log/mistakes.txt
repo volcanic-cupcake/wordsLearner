@@ -20,3 +20,5 @@ chilly reception:	reception
 chilly reception:	chilly receptio
 inferior to:	inferior ti
 abomination:	abominationm
+abomination:	abonishment
+rumor has it that:	rumor has it taht
